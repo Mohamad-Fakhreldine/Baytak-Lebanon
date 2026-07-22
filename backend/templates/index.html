@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baytak Lebanon</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Baytak Lebanon</h1>
+        <button class="menu-toggle" aria-label="Open navigation menu">
+            ☰
+        </button>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Find Your Place in Lebanon</h2>
+                <p>
+                    Discover apartments, houses, and rentals from multiple sources in one place.
+                </p>
+                <a href="#search" class="hero-button">
+                    Find Your Place
+                </a>
+            </div>
+            <div class="hero-image">
+                <img src="../static/images/lebanon.png" alt="Lebanon">
+            </div>
+        </section>
+        <section class="intro">
+            <div class="intro-content">
+                <h2>
+                    Your Home Search,
+                    <br>
+                    Simplified Across Lebanon
+                </h2>
+                <p>
+                    Finding the right place shouldn't require browsing through
+                    countless websites and scattered listings. Baytak Lebanon
+                    gathers rental opportunities from different sources and brings
+                    them together in one organized experience, helping you discover
+                    apartments and homes that match what you are looking for.
+                </p>
+                <p>
+                    Whether you are searching for a new apartment in Beirut, a house
+                    in the mountains, or a place anywhere across Lebanon, Baytak
+                    helps make the search faster, clearer, and easier.
+                </p>
+            </div>
+        </section>
+        <section id="search" class="search-section">
+            <div class="search-content">
+                <h2>Discover What's Available</h2>
+                <p>
+                    Tell us what you are looking for and discover available rentals
+                    that fit your needs across Lebanon.
+                </p>
+                <form class="search-form">
+                    <label class="sr-only" for="location-search">
+                        Search by city or area
+                    </label>
+                    <input id="location-search" type="text" placeholder="Search by city or area">
+                    <label class="sr-only" for="property-type">Property type</label>                
+                    <select id="property-type" name="property-type">
+                        <option value="">Property type</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="studio">Studio</option>
+                    </select>
+                    <button type="submit">
+                        Search
+                    </button>
+                </form>
+            </div>
+        </section>
+        <section class="sources-section">
+            <div class="sources-content">
+                <h2>Rental Sources</h2>
+                <div class="source-cards">
+                    <!-- Source cards will be added dynamically with JavaScript -->
+                    <div class="source-card">
+                        <img src="../static/images/sources/placeholder.png" alt="Source logo">
+                        <span>Source Name</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Baytak Lebanon. All rights reserved.</p>
+        <address>
+            Contact us:
+            <a href="mailto:mohamad.jawad.fakhreldine.dev@gmail.com">
+                contact@baytaklebanon.com
+            </a>
+        </address>
+    </footer>
+    <script src="../static/js/script.js"></script>
+</body>
+
+</html>
