@@ -5,37 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baytak Lebanon</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courgette&family=Edu+SA+Beginner:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/popup.css">
+    <link rel="stylesheet" href="../static/css/hamburger-menu.css">
+
 </head>
 
 <body>
     <header>
-        <h1>Baytak Lebanon</h1>
-        <button class="menu-toggle" aria-label="Open navigation menu">
-            ☰
-        </button>
+        <h1>
+            <span class="brand-main">Baytak</span>
+            <span class="brand-location">Lebanon</span>
+        </h1>
+        <nav class="header-nav">
+            <button class="nav-button">Listings</button>
+            <button class="nav-button">Saved</button>
+        </nav>
+        <div class="menu-container">
+            <button class="menu-toggle" aria-label="Open navigation menu">
+                ☰
+            </button>
+            <div class="menu-popup">
+                <button>About Baytak Lebanon</button>
+                <hr>
+                <button>Contact Us</button>
+                <hr>
+                <button>Privacy Policy & Terms Of Service</button>
+            </div>
+        </div>
     </header>
     <main>
         <section class="hero">
             <div class="hero-content">
-                <h2>Find Your Place in Lebanon</h2>
-                <p>
-                    Discover apartments, houses, and rentals from multiple sources in one place.
-                </p>
+                <h2>Find Your Place in 
+                    <span class="hero-location">Lebanon</span>
+                </h2>
+                <ul class="hero-features">
+                    <li><span class="checkmark">✓</span> Search multiple rental sources</li>
+                    <li><span class="checkmark">✓</span> Compare listings in one place</li>
+                    <li><span class="checkmark">✓</span> Completely free — no hidden fees</li>
+                    <li><span class="checkmark">✓</span> No account required</li>
+                </ul>
                 <a href="#search" class="hero-button">
-                    Find Your Place
+                    Start Searching
                 </a>
             </div>
             <div class="hero-image">
-                <img src="../static/images/lebanon.png" alt="Lebanon">
+                <div class="hero-image-wrapper">
+                    <img src="../static/images/lebanon.png" alt="Lebanese homes">
+                </div>
             </div>
         </section>
         <section class="intro">
             <div class="intro-content">
                 <h2>
-                    Your Home Search,
-                    <br>
-                    Simplified Across Lebanon
+                    Your Home Search, Simplified
                 </h2>
                 <p>
                     Finding the right place shouldn't require browsing through
@@ -63,13 +93,17 @@
                         Search by city or area
                     </label>
                     <input id="location-search" type="text" placeholder="Search by city or area">
-                    <label class="sr-only" for="property-type">Property type</label>                
+                    <label class="sr-only" for="property-type">
+                        Property type
+                    </label>
                     <select id="property-type" name="property-type">
-                        <option value="">Property type</option>
                         <option value="apartment">Apartment</option>
                         <option value="house">House</option>
                         <option value="studio">Studio</option>
                     </select>
+                    <button type="button" id="open-filters" class="filter-button" aria-label="Open filters">
+                        <img src="../static/images/filter.png" alt="">
+                    </button>
                     <button type="submit">
                         Search
                     </button>
@@ -82,8 +116,24 @@
                 <div class="source-cards">
                     <!-- Source cards will be added dynamically with JavaScript -->
                     <div class="source-card">
-                        <img src="../static/images/sources/placeholder.png" alt="Source logo">
-                        <span>Source Name</span>
+                        <img src="../static/images/olx-logo.png" alt="Source logo">
+                        <span>OLX Lebanon</span>
+                    </div>
+                    <div class="source-card">
+                        <img src="../static/images/olx-logo.png" alt="Source logo">
+                        <span>OLX Lebanon</span>
+                    </div>
+                    <div class="source-card">
+                        <img src="../static/images/olx-logo.png" alt="Source logo">
+                        <span>OLX Lebanon</span>
+                    </div>
+                    <div class="source-card">
+                        <img src="../static/images/olx-logo.png" alt="Source logo">
+                        <span>OLX Lebanon</span>
+                    </div>
+                    <div class="source-card">
+                        <img src="../static/images/olx-logo.png" alt="Source logo">
+                        <span>OLX Lebanon</span>
                     </div>
                 </div>
             </div>
@@ -98,7 +148,104 @@
             </a>
         </address>
     </footer>
+
+    <!-- FILTER POPUP -->
+    <div id="filter-overlay" class="filter-overlay">
+        <div class="filter-popup">
+            <div class="filter-cotent">
+                <!-- Price Filter -->
+                <div class="filter-section">
+                    <h3>Price</h3>
+                    <div class="price-range">
+                        <div class="price-input">
+                            <label for="min-price">
+                                Min Price
+                            </label>
+                            <input 
+                                id="min-price" 
+                                type="number" 
+                                placeholder="Minimum">
+                        </div>
+                        <div class="price-input">
+                            <label for="max-price">
+                                Max Price
+                            </label>
+                            <input 
+                                id="max-price" 
+                                type="number" 
+                                placeholder="Maximum">
+                        </div>
+                    </div>
+                </div>
+                <!-- Size Filter -->
+                <div class="filter-section">
+                    <h3>Size</h3>
+                    <div class="size-inputs">
+                        <div class="size-input">
+                            <label for="min-size">
+                                Min Size (m²)
+                            </label>
+                            <input 
+                                id="min-size" 
+                                type="number" 
+                                placeholder="Minimum">
+                        </div>
+                        <div class="size-input">
+                            <label for="max-size">
+                                Max Size (m²)
+                            </label>
+                            <input 
+                                id="max-size" 
+                                type="number" 
+                                placeholder="Maximum">
+                        </div>
+                    </div>
+                </div>
+                <!-- Furnished Filter -->
+                <div class="filter-section">
+                    <h3>Furnished</h3>
+                    <div class="furnished-options">
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="furnished" 
+                                value="any" 
+                                checked>
+                            Any
+                        </label>
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="furnished" 
+                                value="furnished">
+                            Furnished
+                        </label>
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="furnished" 
+                                value="unfurnished">
+                            Unfurnished
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- Popup Buttons -->
+            <div class="filter-actions">
+                <button id="cancel-filters" type="button">
+                    Cancel
+                </button>
+                <button id="apply-filters" type="button">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="../static/js/script.js"></script>
+    <script src="../static/js/popup.js"></script>
+    <script src="../static/js/hamburger-menu.js"></script>
 </body>
 
 </html>
