@@ -1,7 +1,8 @@
 import requests
 import json
 import sys
-import time 
+import time
+import re
 
 from bs4 import BeautifulSoup
 
@@ -51,7 +52,7 @@ def get_ad_data(url):
 
             data = json.loads(text)
 
-            return (
+            ad = (
                 data["props"]
                 ["pageProps"]
                 ["initialState"]
@@ -59,7 +60,9 @@ def get_ad_data(url):
                 ["data"]
             )
 
-    return None
+            return ad, soup
+
+    return None, soup
 
 
 # ---------------------------------------------------------
@@ -80,25 +83,293 @@ def extract_field(fields, attribute):
 
 
 # ---------------------------------------------------------
+# GET IMAGE ID FROM URL
+# ---------------------------------------------------------
+
+def get_image_id_from_url(url):
+    """
+    Extract the OLX image ID from a dynamically supplied URL.
+
+    Examples:
+
+        /thumbnails/17426144-400x300.jpeg
+        /thumbnails/17426144-400x600.jpeg
+        /image/17426144/....
+
+    We only use this to identify which image belongs
+    to the listing.
+
+    We do NOT construct or modify image URLs.
+    """
+
+    match = re.search(
+        r"/(?:thumbnails|image)/(\d+)(?:-|/)",
+        url
+    )
+
+    if match:
+        return match.group(1)
+
+    return None
+
+
+# ---------------------------------------------------------
+# EXTRACT LISTING PHOTO IDS
+# ---------------------------------------------------------
+
+def extract_listing_photo_ids(soup, listing_id):
+    """
+    Extract the photo IDs belonging to THIS listing from
+    OLX's __NEXT_DATA__.
+
+    We do not construct any image URLs here.
+    """
+
+    script = soup.find(
+        "script",
+        id="__NEXT_DATA__"
+    )
+
+    if not script or not script.string:
+
+        print(
+            "WARNING: __NEXT_DATA__ not found."
+        )
+
+        return set()
+
+    try:
+
+        data = json.loads(
+            script.string
+        )
+
+    except json.JSONDecodeError as e:
+
+        print(
+            f"WARNING: Could not parse "
+            f"__NEXT_DATA__: {e}"
+        )
+
+        return set()
+
+    photo_ids = set()
+
+    def walk(obj):
+
+        if isinstance(obj, dict):
+
+            if (
+                str(obj.get("externalID"))
+                == str(listing_id)
+            ):
+
+                photos = obj.get("photos")
+
+                if isinstance(photos, list):
+
+                    for photo in photos:
+
+                        if not isinstance(
+                            photo,
+                            dict
+                        ):
+                            continue
+
+                        photo_id = photo.get("id")
+
+                        if photo_id is not None:
+
+                            photo_ids.add(
+                                str(photo_id)
+                            )
+
+                    if photo_ids:
+
+                        return True
+
+            for value in obj.values():
+
+                if walk(value):
+
+                    return True
+
+        elif isinstance(obj, list):
+
+            for item in obj:
+
+                if walk(item):
+
+                    return True
+
+        return False
+
+    walk(data)
+
+    return photo_ids
+
+
+# ---------------------------------------------------------
 # EXTRACT IMAGES
 # ---------------------------------------------------------
 
-def extract_images(photos):
+def extract_images(soup, listing_id):
+    """
+    Extract image URLs exactly as supplied by OLX.
 
-    images = []
+    OLX supplies the same displayed image in multiple formats:
+        - WebP <source>
+        - JPEG <img>
 
-    for photo in photos:
+    We keep only ONE URL per image ID, preferring WebP.
 
-        image_id = photo.get("id")
+    We do NOT construct or modify image URLs.
+    """
 
-        if image_id:
+    # -----------------------------------------------------
+    # Get photo IDs belonging to this listing
+    # -----------------------------------------------------
 
-            images.append(
-                f"https://images-prod.olx-dubizzle.com/"
-                f"thumbnails/{image_id}-600x450.jpeg"
+    listing_photo_ids = extract_listing_photo_ids(
+        soup,
+        listing_id
+    )
+
+    print(
+        f"Listing photo IDs found: "
+        f"{len(listing_photo_ids)}"
+    )
+
+    # -----------------------------------------------------
+    # Collect dynamically supplied image URLs
+    # -----------------------------------------------------
+
+    # image_id -> {
+    #     "webp": URL or None,
+    #     "jpeg": URL or None
+    # }
+
+    image_urls = {}
+
+    # -----------------------------------------------------
+    # First: WebP <source> URLs
+    # -----------------------------------------------------
+
+    for source in soup.find_all("source"):
+
+        source_type = source.get("type")
+        srcset = source.get("srcset")
+
+        if source_type != "image/webp":
+            continue
+
+        if not srcset:
+            continue
+
+        image_id = get_image_id_from_url(
+            srcset
+        )
+
+        if image_id is None:
+            continue
+
+        if image_id not in listing_photo_ids:
+            continue
+
+        if image_id not in image_urls:
+
+            image_urls[image_id] = {
+                "webp": None,
+                "jpeg": None
+            }
+
+        image_urls[image_id]["webp"] = srcset
+
+    # -----------------------------------------------------
+    # Second: regular <img> URLs
+    # -----------------------------------------------------
+
+    for img in soup.find_all("img"):
+
+        src = img.get("src")
+
+        if not src:
+            continue
+
+        if (
+            "images-prod.olx-dubizzle.com"
+            not in src
+        ):
+            continue
+
+        image_id = get_image_id_from_url(
+            src
+        )
+
+        if image_id is None:
+            continue
+
+        if image_id not in listing_photo_ids:
+            continue
+
+        if image_id not in image_urls:
+
+            image_urls[image_id] = {
+                "webp": None,
+                "jpeg": None
+            }
+
+        image_urls[image_id]["jpeg"] = src
+
+    # -----------------------------------------------------
+    # Choose ONE URL per image
+    #
+    # Prefer WebP because it worked in testing.
+    # Fall back to JPEG if no WebP was supplied.
+    # -----------------------------------------------------
+
+    selected_images = []
+
+    for image_id in image_urls:
+
+        webp_url = image_urls[
+            image_id
+        ]["webp"]
+
+        jpeg_url = image_urls[
+            image_id
+        ]["jpeg"]
+
+        if webp_url:
+
+            selected_images.append(
+                webp_url
             )
 
-    return images
+        elif jpeg_url:
+
+            selected_images.append(
+                jpeg_url
+            )
+
+    # -----------------------------------------------------
+    # Remove duplicates while preserving order
+    # -----------------------------------------------------
+
+    unique_images = []
+
+    seen = set()
+
+    for url in selected_images:
+
+        if url in seen:
+            continue
+
+        seen.add(url)
+
+        unique_images.append(url)
+
+    return unique_images
 
 
 # ---------------------------------------------------------
@@ -107,7 +378,7 @@ def extract_images(photos):
 
 def scrape_details(url):
 
-    ad = get_ad_data(url)
+    ad, soup = get_ad_data(url)
 
     if not ad:
         return None
@@ -264,7 +535,8 @@ def scrape_details(url):
     # -----------------------------------------------------
 
     listing["images"] = extract_images(
-        ad.get("photos", [])
+        soup,
+        listing["external_id"]
     )
 
     # -----------------------------------------------------
