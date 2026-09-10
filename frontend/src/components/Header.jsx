@@ -23,7 +23,13 @@ function Header() {
             </h1>
 
             <nav className="header-nav">
-                <button className="nav-button">Listings</button>
+                <button
+                    className="nav-button"
+                    onClick={() => window.location.href = "/listings"}
+                >
+                    Listings
+                </button>
+
                 <button className="nav-button">Saved</button>
             </nav>
 

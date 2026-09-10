@@ -1,4 +1,7 @@
 :root {
+    -webkit-user-select: none;
+    user-select: none;
+
     --color-primary: #004733;
     --color-primary-light: #2b6a4d;
     --color-secondary: #568d66;

@@ -392,6 +392,18 @@ def scrape_details(url):
         []
     )
 
+    print("\n========== OLX FIELDS ==========")
+
+    for field in formatted_fields:
+        print(field)
+
+    print("================================\n")
+
+    location = ad.get(
+        "location",
+        []
+    )
+
     location = ad.get(
         "location",
         []

@@ -79,17 +79,8 @@ function FilterPopup({ isOpen, onClose }) {
                                 <input
                                     type="radio"
                                     name="furnished"
-                                    value="any"
-                                    defaultChecked
-                                />
-                                Any
-                            </label>
-
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="furnished"
                                     value="furnished"
+                                    defaultChecked
                                 />
                                 Furnished
                             </label>
