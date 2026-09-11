@@ -51,8 +51,6 @@ def create_database():
 
             area TEXT,
 
-            address TEXT,
-
             property_type TEXT,
 
             bedrooms INTEGER,

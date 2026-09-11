@@ -1,40 +1,42 @@
-import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import re
 import time
 
+from playwright.sync_api import sync_playwright
+
 
 BASE_URL = "https://olx.com.lb/properties/apartments-villas-for-rent/"
-
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (X11; Linux x86_64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/150.0.0.0 Safari/537.36"
-    )
-}
+BRAVE_PATH = "/usr/bin/brave-browser"
 
 
-def fetch_page(url, timeout=30):
-    response = requests.get(
+def fetch_page(page, url):
+
+    page.goto(
         url,
-        headers=HEADERS,
-        timeout=timeout
+        wait_until="domcontentloaded",
+        timeout=60000
     )
 
-    response.raise_for_status()
+    page.wait_for_timeout(3000)
 
-    return response.text
+    return page.content()
 
 
 def get_page_number(html):
-    soup = BeautifulSoup(html, "html.parser")
+
+    soup = BeautifulSoup(
+        html,
+        "html.parser"
+    )
 
     if not soup.title:
         return None
 
-    title = soup.title.get_text(" ", strip=True)
+    title = soup.title.get_text(
+        " ",
+        strip=True
+    )
 
     match = re.search(
         r"Page-(\d+)",
@@ -49,13 +51,19 @@ def get_page_number(html):
 
 
 def parse_listings(html):
-    soup = BeautifulSoup(html, "html.parser")
+
+    soup = BeautifulSoup(
+        html,
+        "html.parser"
+    )
 
     unique_listings = {}
 
     links = soup.find_all(
         "a",
-        href=re.compile(r"/ad/.*ID\d+\.html")
+        href=re.compile(
+            r"/ad/.*ID\d+\.html"
+        )
     )
 
     for link in links:
@@ -87,82 +95,128 @@ def parse_listings(html):
                 "url": url
             }
 
-    return list(unique_listings.values())
+    return list(
+        unique_listings.values()
+    )
 
 
 def scrape_olx():
 
     all_listings = []
 
-    page = 1
+    page_number = 1
 
-    while True:
+    with sync_playwright() as playwright:
 
-        if page == 1:
-            url = BASE_URL
-        else:
-            url = f"{BASE_URL}?page={page}"
-
-        try:
-            html = fetch_page(url)
-
-        except requests.exceptions.RequestException as e:
-
-            print(f"\nError while fetching page {page}:")
-            print(e)
-
-            break
-
-        actual_page = get_page_number(html)
-
-        # Page 1 does not contain Page-1 in the title
-        if page == 1:
-
-            if actual_page is not None:
-
-                print(
-                    f"\nUnexpected page number returned: "
-                    f"{actual_page}"
-                )
-
-                break
-
-        # Every page after page 1 must contain its
-        # own page number in the title
-        else:
-
-            if actual_page != page:
-
-                print("\nReached the end of OLX pagination.")
-
-                print(
-                    f"Requested page {page}, "
-                    f"but OLX returned "
-                    f"{actual_page if actual_page is not None else 'the main page'}."
-                )
-
-                break
-
-        listings = parse_listings(html)
-
-        print(
-            f"\nPage {page}: "
-            f"{len(listings)} listings"
+        browser = playwright.chromium.launch(
+            executable_path=BRAVE_PATH,
+            headless=True
         )
 
-        # If a valid page contains no listings,
-        # stop the scraper.
-        if not listings:
+        page = browser.new_page()
 
-            print("\nNo listings found. Stopping.")
+        try:
 
-            break
+            while True:
 
-        all_listings.extend(listings)
+                if page_number == 1:
+                    url = BASE_URL
+                else:
+                    url = (
+                        f"{BASE_URL}"
+                        f"?page={page_number}"
+                    )
 
-        page += 1
+                print(
+                    f"\nFetching page "
+                    f"{page_number}..."
+                )
 
-        time.sleep(1)
+                try:
+
+                    html = fetch_page(
+                        page,
+                        url
+                    )
+
+                except Exception as e:
+
+                    print(
+                        f"\nError while fetching "
+                        f"page {page_number}:"
+                    )
+
+                    print(e)
+
+                    break
+
+                actual_page = get_page_number(
+                    html
+                )
+
+                # Page 1 does not contain
+                # Page-1 in the title.
+                if page_number == 1:
+
+                    if actual_page is not None:
+
+                        print(
+                            f"\nUnexpected page "
+                            f"number returned: "
+                            f"{actual_page}"
+                        )
+
+                        break
+
+                # Every page after page 1
+                # must contain its own page number.
+                else:
+
+                    if actual_page != page_number:
+
+                        print(
+                            "\nReached the end "
+                            "of OLX pagination."
+                        )
+
+                        print(
+                            f"Requested page "
+                            f"{page_number}, "
+                            f"but OLX returned "
+                            f"{actual_page if actual_page is not None else 'the main page'}."
+                        )
+
+                        break
+
+                listings = parse_listings(
+                    html
+                )
+
+                print(
+                    f"Page {page_number}: "
+                    f"{len(listings)} listings"
+                )
+
+                if not listings:
+
+                    print(
+                        "\nNo listings found. "
+                        "Stopping."
+                    )
+
+                    break
+
+                all_listings.extend(
+                    listings
+                )
+
+                page_number += 1
+
+                time.sleep(1)
+
+        finally:
+
+            browser.close()
 
     return all_listings
 
@@ -173,20 +227,28 @@ def remove_duplicates(listings):
 
     for listing in listings:
 
-        external_id = listing["external_id"]
+        external_id = listing[
+            "external_id"
+        ]
 
         if external_id not in unique_listings:
 
-            unique_listings[external_id] = listing
+            unique_listings[
+                external_id
+            ] = listing
 
-    return list(unique_listings.values())
+    return list(
+        unique_listings.values()
+    )
 
 
 if __name__ == "__main__":
 
     listings = scrape_olx()
 
-    unique_listings = remove_duplicates(listings)
+    unique_listings = remove_duplicates(
+        listings
+    )
 
     print("\n---")
 

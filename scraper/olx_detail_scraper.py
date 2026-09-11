@@ -5,10 +5,10 @@ import time
 import re
 
 from bs4 import BeautifulSoup
-
+from playwright.sync_api import sync_playwright
 from olx_parser import parse_description
 from olx_scraper import fetch_page, get_page_number, parse_listings
-
+BRAVE_PATH = "/usr/bin/brave-browser"
 
 HEADERS = {
     "User-Agent": (
@@ -431,15 +431,13 @@ def scrape_details(url):
 
         "area": None,
 
-        "address": None,
-
-        "property_type": None,
-
         "bedrooms": None,
 
         "bathrooms": None,
 
         "size": None,
+
+        "furnished": None,
 
         "seller_name": None,
 
@@ -461,9 +459,24 @@ def scrape_details(url):
         "ft"
     )
 
+    listing["bedrooms"] = extract_field(
+        formatted_fields,
+        "rooms"
+    )
+
+    listing["bathrooms"] = extract_field(
+        formatted_fields,
+        "bathrooms"
+    )
+
     listing["property_type"] = extract_field(
         formatted_fields,
-        "type"
+        "property_type"
+    )
+
+    listing["furnished"] = extract_field(
+        formatted_fields,
+        "furnished"
     )
 
     # -----------------------------------------------------
@@ -509,6 +522,45 @@ def scrape_details(url):
         ):
 
             listing["size"] = None
+
+    # -----------------------------------------------------
+    # Convert bedrooms
+    # -----------------------------------------------------
+
+    if listing["bedrooms"]:
+
+        try:
+
+            listing["bedrooms"] = int(
+                listing["bedrooms"]
+            )
+
+        except (
+            ValueError,
+            TypeError
+        ):
+
+            listing["bedrooms"] = None
+
+
+    # -----------------------------------------------------
+    # Convert bathrooms
+    # -----------------------------------------------------
+
+    if listing["bathrooms"]:
+
+        try:
+
+            listing["bathrooms"] = int(
+                listing["bathrooms"]
+            )
+
+        except (
+            ValueError,
+            TypeError
+        ):
+
+            listing["bathrooms"] = None
 
     # -----------------------------------------------------
     # Location
@@ -588,124 +640,119 @@ def get_listing_urls(limit=None):
 
     all_listings = []
 
-    page = 1
+    page_number = 1
 
-    while True:
+    with sync_playwright() as playwright:
 
-        if page == 1:
+        browser = playwright.chromium.launch(
+            executable_path=BRAVE_PATH,
+            headless=True
+        )
 
-            url = BASE_URL
-
-        else:
-
-            url = (
-                f"{BASE_URL}?page={page}"
-            )
+        page = browser.new_page()
 
         try:
 
-            html = fetch_page(url)
+            while True:
 
-        except requests.exceptions.RequestException as e:
+                if page_number == 1:
 
-            print(
-                f"\nError while fetching page {page}:"
-            )
+                    url = BASE_URL
 
-            print(e)
+                else:
 
-            break
-
-        actual_page = get_page_number(
-            html
-        )
-
-        # -------------------------------------------------
-        # Page 1
-        # -------------------------------------------------
-
-        if page == 1:
-
-            if actual_page is not None:
+                    url = (
+                        f"{BASE_URL}?page={page_number}"
+                    )
 
                 print(
-                    f"\nUnexpected page number returned: "
-                    f"{actual_page}"
+                    f"\nFetching OLX page {page_number}..."
                 )
 
-                break
+                html = fetch_page(
+                    page,
+                    url
+                )
 
-        # -------------------------------------------------
-        # Pages after page 1
-        # -------------------------------------------------
+                actual_page = get_page_number(
+                    html
+                )
 
-        else:
+                if page_number == 1:
 
-            if actual_page != page:
+                    if actual_page is not None:
+
+                        print(
+                            f"\nUnexpected page number returned: "
+                            f"{actual_page}"
+                        )
+
+                        break
+
+                else:
+
+                    if actual_page != page_number:
+
+                        returned_page = (
+                            actual_page
+                            if actual_page is not None
+                            else 1
+                        )
+
+                        print(
+                            f"\nReached the end of OLX pagination."
+                        )
+
+                        print(
+                            f"Requested page {page_number}, "
+                            f"but OLX returned page "
+                            f"{returned_page}."
+                        )
+
+                        break
+
+                listings = parse_listings(
+                    html
+                )
 
                 print(
-                    "\nReached the end of OLX pagination."
+                    f"Page {page_number}: "
+                    f"{len(listings)} listings"
                 )
 
-                returned_page = (
-                    actual_page
-                    if actual_page is not None
-                    else 1
-                )
+                if not listings:
 
-                print(
-                    f"Requested page {page}, "
-                    f"but OLX returned page "
-                    f"{returned_page}."
-                )
+                    print(
+                        "\nNo listings found. Stopping."
+                    )
 
-                break
+                    break
 
-        listings = parse_listings(
-            html
-        )
+                for listing in listings:
 
-        print(
-            f"Page {page}: "
-            f"{len(listings)} listings"
-        )
+                    all_listings.append(
+                        listing
+                    )
 
-        if not listings:
+                    if (
+                        limit is not None
+                        and len(all_listings) >= limit
+                    ):
 
-            print(
-                "\nNo listings found. Stopping."
-            )
+                        print(
+                            f"\nReached test limit "
+                            f"of {limit} listings."
+                        )
 
-            break
+                        return all_listings
 
-        # -------------------------------------------------
-        # Add listings
-        # -------------------------------------------------
+                page_number += 1
 
-        for listing in listings:
+                time.sleep(1)
 
-            all_listings.append(
-                listing
-            )
+        finally:
 
-            # Stop immediately once the
-            # requested test limit is reached.
-
-            if (
-                limit is not None
-                and len(all_listings) >= limit
-            ):
-
-                print(
-                    f"\nReached test limit "
-                    f"of {limit} listings."
-                )
-
-                return all_listings
-
-        page += 1
-
-        time.sleep(1)
+            browser.close()
 
     return all_listings
 

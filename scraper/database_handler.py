@@ -65,11 +65,11 @@ def insert_listing(listing):
             currency,
             city,
             area,
-            address,
             property_type,
             bedrooms,
             bathrooms,
             size,
+            furnished,
             seller_name,
             scraped_date
         )
@@ -85,11 +85,11 @@ def insert_listing(listing):
             listing.get("currency"),
             listing.get("city"),
             listing.get("area"),
-            listing.get("address"),
             listing.get("property_type"),
             listing.get("bedrooms"),
             listing.get("bathrooms"),
             listing.get("size"),
+            listing.get("furnished"),
             listing.get("seller_name")
         )
     )
