@@ -115,19 +115,36 @@ function Header() {
                     }
                 >
 
-                    <button>
+                    <button
+                        onClick={() =>
+                            window.location.href =
+                                "/about"
+                        }
+                    >
                         About Baytak Lebanon
                     </button>
 
                     <hr />
 
-                    <button>
+
+                    <button
+                        onClick={() =>
+                            window.location.href =
+                                "/contact"
+                        }
+                    >
                         Contact Us
                     </button>
 
                     <hr />
 
-                    <button>
+
+                    <button
+                        onClick={() =>
+                            window.location.href =
+                                "/privacy"
+                        }
+                    >
                         Privacy Policy & Terms Of Service
                     </button>
 

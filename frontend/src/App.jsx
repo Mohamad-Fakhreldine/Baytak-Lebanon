@@ -1,6 +1,9 @@
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import Saved from "./pages/Saved";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
 
 
 function App() {
@@ -17,6 +20,18 @@ function App() {
         return <Saved />;
     }
 
+
+    if (path === "/about") {
+        return <About />;
+    }
+
+    if (path === "/contact") {
+        return <Contact />;
+    }
+
+    if (path === "/privacy") {
+        return <Privacy />;
+    }
 
     return <Home />;
 }

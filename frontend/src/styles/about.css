@@ -1,0 +1,435 @@
+.about-page {
+
+    min-height: 70vh;
+
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.about-hero {
+
+    width: 86%;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 90px 0 100px;
+
+}
+
+
+.about-eyebrow {
+
+    margin: 0 0 18px;
+
+    color: #568d66;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 0.78rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.16em;
+
+    text-transform: uppercase;
+
+}
+
+
+.about-hero h2 {
+
+    max-width: 850px;
+
+    margin: 0;
+
+    color: #004733;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: clamp(2.7rem, 6vw, 5.5rem);
+
+    font-weight: 700;
+
+    line-height: 1.02;
+
+    letter-spacing: -0.045em;
+
+}
+
+
+.about-hero h2 span {
+
+    color: #568d66;
+
+}
+
+
+.about-intro {
+
+    max-width: 680px;
+
+    margin: 34px 0 0;
+
+    color: #555b5c;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 1.08rem;
+
+    line-height: 1.8;
+
+}
+
+
+/* =========================
+   ABOUT SECTION
+========================= */
+
+.about-section {
+
+    display: grid;
+
+    grid-template-columns: 0.9fr 1.1fr;
+
+    gap: 80px;
+
+    width: 86%;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 80px 0;
+
+    border-top: 1px solid #dcdfe5;
+
+}
+
+
+.about-section-heading h3 {
+
+    margin: 0;
+
+    color: #004733;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: clamp(2rem, 4vw, 3.4rem);
+
+    font-weight: 700;
+
+    line-height: 1.1;
+
+    letter-spacing: -0.035em;
+
+}
+
+
+.about-section-content {
+
+    padding-top: 38px;
+
+}
+
+
+.about-section-content p {
+
+    max-width: 620px;
+
+    margin: 0 0 24px;
+
+    color: #555b5c;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 1rem;
+
+    line-height: 1.85;
+
+}
+
+
+.about-section-content p:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+/* =========================
+   FEATURE CARDS
+========================= */
+
+.about-features {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 22px;
+
+    width: 86%;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 30px 0 100px;
+
+}
+
+
+.about-card {
+
+    min-height: 280px;
+
+    padding: 32px;
+
+    background: #f3f4f6;
+
+    border-radius: 18px;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+}
+
+
+.about-card:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 14px 35px rgba(0, 71, 51, 0.08);
+
+}
+
+
+.about-card-number {
+
+    margin-bottom: 55px;
+
+    color: #568d66;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 0.8rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+
+}
+
+
+.about-card h3 {
+
+    margin: 0 0 12px;
+
+    color: #004733;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 1.45rem;
+
+    font-weight: 700;
+
+}
+
+
+.about-card p {
+
+    margin: 0;
+
+    color: #626768;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 0.95rem;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================
+   MISSION
+========================= */
+
+.about-mission {
+
+    width: 100%;
+
+    padding: 100px 0;
+
+    background: #004733;
+
+}
+
+
+.about-mission-inner {
+
+    width: 86%;
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+}
+
+
+.about-mission .about-eyebrow {
+
+    color: #a5c1ae;
+
+}
+
+
+.about-mission h3 {
+
+    max-width: 900px;
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+
+    font-weight: 700;
+
+    line-height: 1.12;
+
+    letter-spacing: -0.035em;
+
+}
+
+
+.about-mission-inner > p:last-child {
+
+    max-width: 650px;
+
+    margin: 32px 0 0;
+
+    color: #d7e2dc;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 1rem;
+
+    line-height: 1.8;
+
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 850px) {
+
+    .about-hero {
+
+        padding: 65px 0 75px;
+
+    }
+
+
+    .about-section {
+
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+
+        padding: 65px 0;
+
+    }
+
+
+    .about-section-content {
+
+        padding-top: 0;
+
+    }
+
+
+    .about-features {
+
+        grid-template-columns: 1fr;
+
+        padding-bottom: 70px;
+
+    }
+
+
+    .about-card {
+
+        min-height: auto;
+
+    }
+
+
+    .about-card-number {
+
+        margin-bottom: 35px;
+
+    }
+
+
+    .about-mission {
+
+        padding: 75px 0;
+
+    }
+
+}
+
+
+@media (max-width: 550px) {
+
+    .about-hero,
+    .about-section,
+    .about-features,
+    .about-mission-inner {
+
+        width: 90%;
+
+    }
+
+
+    .about-hero h2 {
+
+        font-size: 2.7rem;
+
+    }
+
+
+    .about-intro {
+
+        font-size: 1rem;
+
+    }
+
+
+    .about-section-heading h3 {
+
+        font-size: 2.2rem;
+
+    }
+
+
+    .about-mission h3 {
+
+        font-size: 2.25rem;
+
+    }
+
+}
