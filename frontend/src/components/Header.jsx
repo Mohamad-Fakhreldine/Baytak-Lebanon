@@ -1,68 +1,143 @@
 import { useEffect, useState } from "react";
 
+
 function Header() {
-    const [menuOpen, setMenuOpen] = useState(false);
+
+    const [menuOpen, setMenuOpen] =
+        useState(false);
+
 
     useEffect(() => {
+
         function handleOutsideClick() {
+
             setMenuOpen(false);
+
         }
 
-        document.addEventListener("click", handleOutsideClick);
+
+        document.addEventListener(
+            "click",
+            handleOutsideClick
+        );
+
 
         return () => {
-            document.removeEventListener("click", handleOutsideClick);
+
+            document.removeEventListener(
+                "click",
+                handleOutsideClick
+            );
+
         };
+
     }, []);
+
 
     return (
         <header>
+
             <h1>
-                <span className="brand-main">Baytak</span>{" "}
-                <span className="brand-location">Lebanon</span>
+
+                <span className="brand-main">
+                    Baytak
+                </span>{" "}
+
+                <span className="brand-location">
+                    Lebanon
+                </span>
+
             </h1>
+
 
             <nav className="header-nav">
 
                 <button
                     className="nav-button"
-                    onClick={() => window.location.href = "/home"}
+                    onClick={() =>
+                        window.location.href =
+                            "/home"
+                    }
                 >
                     Home
                 </button>
 
+
                 <button
                     className="nav-button"
-                    onClick={() => window.location.href = "/listings"}
+                    onClick={() =>
+                        window.location.href =
+                            "/listings"
+                    }
                 >
                     Listings
                 </button>
 
-                <button className="nav-button">Saved</button>
+
+                <button
+                    className="nav-button"
+                    onClick={() =>
+                        window.location.href =
+                            "/saved"
+                    }
+                >
+                    Saved
+                </button>
+
             </nav>
+
 
             <div
                 className="menu-container"
-                onClick={(event) => event.stopPropagation()}
+                onClick={(event) =>
+                    event.stopPropagation()
+                }
             >
+
                 <button
                     className="menu-toggle"
                     aria-label="Open navigation menu"
-                    onClick={() => setMenuOpen(!menuOpen)}
+                    onClick={() =>
+                        setMenuOpen(!menuOpen)
+                    }
                 >
                     ☰
                 </button>
 
-                <div className={`menu-popup ${menuOpen ? "active" : ""}`}>
-                    <button>About Baytak Lebanon</button>
+
+                <div
+                    className={
+                        `menu-popup ${
+                            menuOpen
+                                ? "active"
+                                : ""
+                        }`
+                    }
+                >
+
+                    <button>
+                        About Baytak Lebanon
+                    </button>
+
                     <hr />
-                    <button>Contact Us</button>
+
+                    <button>
+                        Contact Us
+                    </button>
+
                     <hr />
-                    <button>Privacy Policy & Terms Of Service</button>
+
+                    <button>
+                        Privacy Policy & Terms Of Service
+                    </button>
+
                 </div>
+
             </div>
+
         </header>
     );
 }
+
 
 export default Header;

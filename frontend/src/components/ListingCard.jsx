@@ -1,14 +1,92 @@
-function ListingCard({ listing, onClick }) {
+const SAVED_LISTINGS_KEY = "savedListings";
+
+function ListingCard({ listing, onClick, onSavedChange }) {
+
+    const isSaved = () => {
+
+        const savedListings = JSON.parse(
+            localStorage.getItem(SAVED_LISTINGS_KEY) || "[]"
+        );
+
+        return savedListings.some(
+            savedListing => savedListing.id === listing.id
+        );
+    };
+
+
+    const handleFavoriteClick = (event) => {
+
+        event.stopPropagation();
+
+        const savedListings = JSON.parse(
+            localStorage.getItem(SAVED_LISTINGS_KEY) || "[]"
+        );
+
+        const alreadySaved = savedListings.some(
+            savedListing => savedListing.id === listing.id
+        );
+
+
+        if (alreadySaved) {
+
+            const updatedListings = savedListings.filter(
+                savedListing => savedListing.id !== listing.id
+            );
+
+            localStorage.setItem(
+                SAVED_LISTINGS_KEY,
+                JSON.stringify(updatedListings)
+            );
+
+        } else {
+
+            const updatedListings = [
+                ...savedListings,
+                listing
+            ];
+
+            localStorage.setItem(
+                SAVED_LISTINGS_KEY,
+                JSON.stringify(updatedListings)
+            );
+
+        }
+
+
+        if (onSavedChange) {
+            onSavedChange(
+                listing.id,
+                !alreadySaved
+            );
+        }
+
+
+        // Force the card to redraw so the heart changes.
+        event.currentTarget
+            .closest(".listing-card")
+            .querySelector(".checkbox")
+            .checked = !alreadySaved;
+    };
+
+
     return (
-        <article className="listing-card" onClick={onClick}>
+        <article
+            className="listing-card"
+            onClick={onClick}
+        >
+
             <div className="listing-image">
+
                 <img
                     src={listing.images[0].image_url}
                     alt={listing.title}
                 />
+
             </div>
 
+
             <div className="listing-info">
+
                 <div className="listing-location">
                     {listing.title}
                 </div>
@@ -18,7 +96,9 @@ function ListingCard({ listing, onClick }) {
                 </div>
 
                 <div className="listing-tags">
+
                     <span className="listing-tag">
+
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -37,10 +117,14 @@ function ListingCard({ listing, onClick }) {
                         <span className="bedroom-count">
                             {listing.bedrooms}
                         </span>
+
                     </span>
 
+
                     {listing.furnished === "Fully Furnished" && (
+
                         <span className="listing-tag">
+
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -56,11 +140,16 @@ function ListingCard({ listing, onClick }) {
                                 <path d="M20 18v2" />
                                 <path d="M12 4v9" />
                             </svg>
+
                         </span>
+
                     )}
 
+
                     {listing.furnished === "Appliances only" && (
+
                         <span className="listing-tag">
+
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -76,27 +165,35 @@ function ListingCard({ listing, onClick }) {
                                 <path d="m17 2-1 12" />
                                 <path d="M8.006 14 7 2" />
                                 <path d="M7.565 8.787A5 5 0 0 0 12 8a5 5 0 0 1 4.56-.75" />
-                                <path d="M19 2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 .688 1.5" />
+                                <path d="M19 2H5a2 2 0 0 1 2-2v5a2 2 0 0 0 .688 1.5" />
                                 <path d="M12 18h.01" />
                             </svg>
+
                         </span>
+
                     )}
+
                 </div>
+
             </div>
 
+
             <div className="listing-button">
+
                 <div
                     className="heart-container"
                     title="Like"
-                    onClick={(event) => event.stopPropagation()}
+                    onClick={handleFavoriteClick}
                 >
+
                     <input
                         type="checkbox"
                         className="checkbox"
-                        id="favorite-checkbox"
+                        defaultChecked={isSaved()}
                     />
 
                     <div className="svg-container">
+
                         <svg
                             viewBox="0 0 24 24"
                             className="svg-outline"
@@ -126,9 +223,13 @@ function ListingCard({ listing, onClick }) {
                             <polygon points="90,50 80,50" />
                             <polygon points="80,80 70,70" />
                         </svg>
+
                     </div>
+
                 </div>
+
             </div>
+
         </article>
     );
 }
