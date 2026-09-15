@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -12,55 +12,266 @@ import "../styles/pagination.css";
 import "../styles/listingsfilters.css";
 import "../styles/listingpopup.css";
 
+
 function Listings() {
 
+    const [listings, setListings] = useState([]);
+
+    const [currentPage, setCurrentPage] = useState(() => {
+
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        const page = parseInt(
+            params.get("page") || "1",
+            10
+        );
+
+        return page > 0 ? page : 1;
+    });
+
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalListings, setTotalListings] = useState(0);
+    const [totalSources, setTotalSources] = useState(0);
+
     const [isListingOpen, setIsListingOpen] = useState(false);
+    const [selectedListingId, setSelectedListingId] = useState(null);
+
+
+    // ==========================
+    // FETCH LISTINGS
+    // ==========================
+
+    useEffect(() => {
+
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        params.set(
+            "page",
+            currentPage
+        );
+
+        fetch(
+            `http://127.0.0.1:5000/api/listings/?${params.toString()}`
+        )
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to fetch listings"
+                    );
+                }
+
+                return response.json();
+
+            })
+            .then(data => {
+
+                setListings(
+                    data.listings || []
+                );
+
+                setTotalPages(
+                    data.pagination.pages
+                );
+
+                setTotalListings(
+                    data.pagination.total
+                );
+
+                setTotalSources(
+                    data.pagination.sources
+                );
+
+            })
+            .catch(error => {
+
+                console.error(
+                    "Failed to fetch listings:",
+                    error
+                );
+
+            });
+
+    }, [currentPage]);
+
+
+    // ==========================
+    // OPEN LISTING POPUP
+    // ==========================
+
+    const handleListingClick = listingId => {
+
+        setSelectedListingId(
+            listingId
+        );
+
+        setIsListingOpen(
+            true
+        );
+    };
+
+
+    // ==========================
+    // CLOSE LISTING POPUP
+    // ==========================
+
+    const handleCloseListing = () => {
+
+        setIsListingOpen(
+            false
+        );
+
+        setSelectedListingId(
+            null
+        );
+    };
+
+
+    // ==========================
+    // PAGE CHANGE
+    // ==========================
+
+    const handlePageChange = page => {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        params.set(
+            "page",
+            page
+        );
+
+        window.history.replaceState(
+            {},
+            "",
+            `/listings?${params.toString()}`
+        );
+
+        setCurrentPage(
+            page
+        );
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    };
+
+
+    // ==========================
+    // RENDER
+    // ==========================
 
     return (
         <>
-            <Header />
 
-            <main className="listings-main">
+            <div
+                className={
+                    isListingOpen
+                        ? "listings-page blurred"
+                        : "listings-page"
+                }
+            >
 
-                <ListingsFilters />
+                <Header />
 
-                <div className="listings-status">
-                    <span className="status-line"></span>
+                <main className="listings-main">
 
-                    <div className="status-text">
-                        <span className="status-symbol">✦</span>
-                        Browsing <span className="listing-count">7,364</span> listings from 3 different sources
+                    <ListingsFilters />
+
+                    <div className="listings-status">
+
+                        <span className="status-line"></span>
+
+                        <div className="status-text">
+
+                            <span className="status-symbol">
+                                ✦
+                            </span>
+
+                            Browsing{" "}
+
+                            <span className="listing-count">
+                                {totalListings.toLocaleString()}
+                            </span>{" "}
+
+                            listings from{" "}
+
+                            <span className="listing-count">
+                                {totalSources}
+                            </span>{" "}
+
+                            different sources
+
+                        </div>
+
+                        <span className="status-line"></span>
+
                     </div>
 
-                    <span className="status-line"></span>
-                </div>
 
-                <div className="listings-grid">
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                    <ListingCard onClick={() => setIsListingOpen(true)} />
-                </div>
+                    <div className="listings-grid">
 
-                <Pagination />
+                        {listings.map(
+                            listing => (
 
-            </main>
+                                <ListingCard
+                                    key={listing.id}
+                                    listing={listing}
+                                    onClick={() =>
+                                        handleListingClick(
+                                            listing.id
+                                        )
+                                    }
+                                />
 
-            <Footer />
+                            )
+                        )}
+
+                    </div>
+
+
+                    <Pagination
+                        currentPage={
+                            currentPage
+                        }
+                        totalPages={
+                            totalPages
+                        }
+                        onPageChange={
+                            handlePageChange
+                        }
+                    />
+
+                </main>
+
+                <Footer />
+
+            </div>
+
 
             <ListingPopup
-                isOpen={isListingOpen}
-                onClose={() => setIsListingOpen(false)}
+                isOpen={
+                    isListingOpen
+                }
+                listingId={
+                    selectedListingId
+                }
+                onClose={
+                    handleCloseListing
+                }
             />
+
         </>
     );
 }
+
 
 export default Listings;

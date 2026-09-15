@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from extensions import db
@@ -51,10 +51,6 @@ class Listing(db.Model):
         String
     )
 
-    address: Mapped[str | None] = mapped_column(
-        String
-    )
-
     property_type: Mapped[str | None] = mapped_column(
         String
     )
@@ -88,7 +84,7 @@ class Listing(db.Model):
     )
 
     # ==========================
-    # CONSTRAINTS
+    # CONSTRAINTS / INDEXES
     # ==========================
 
     __table_args__ = (
@@ -96,6 +92,32 @@ class Listing(db.Model):
             "source",
             "external_id",
             name="uq_listings_source_external_id"
+        ),
+
+        Index(
+            "ix_listings_property_type",
+            "property_type"
+        ),
+
+        Index(
+            "ix_listings_price",
+            "price"
+        ),
+
+        Index(
+            "ix_listings_size",
+            "size"
+        ),
+
+        Index(
+            "ix_listings_furnished",
+            "furnished"
+        ),
+
+        Index(
+            "ix_listings_furnished_property_type",
+            "furnished",
+            "property_type"
         ),
     )
 

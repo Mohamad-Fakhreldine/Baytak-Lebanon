@@ -23,6 +23,14 @@ function Header() {
             </h1>
 
             <nav className="header-nav">
+
+                <button
+                    className="nav-button"
+                    onClick={() => window.location.href = "/home"}
+                >
+                    Home
+                </button>
+
                 <button
                     className="nav-button"
                     onClick={() => window.location.href = "/listings"}

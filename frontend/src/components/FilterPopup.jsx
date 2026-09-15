@@ -1,4 +1,26 @@
-function FilterPopup({ isOpen, onClose }) {
+import { useState } from "react";
+
+function FilterPopup({ isOpen, onClose, onApply }) {
+    const [draftFilters, setDraftFilters] = useState({
+        minPrice: "",
+        maxPrice: "",
+        minSize: "",
+        maxSize: "",
+        furnished: "",
+    });
+
+    const handleChange = (field, value) => {
+        setDraftFilters((current) => ({
+            ...current,
+            [field]: value,
+        }));
+    };
+
+    const handleApply = () => {
+        onApply(draftFilters);
+        onClose();
+    };
+
     if (!isOpen) {
         return null;
     }
@@ -22,6 +44,13 @@ function FilterPopup({ isOpen, onClose }) {
                                     id="min-price"
                                     type="number"
                                     placeholder="Minimum"
+                                    value={draftFilters.minPrice}
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "minPrice",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                             </div>
 
@@ -34,6 +63,13 @@ function FilterPopup({ isOpen, onClose }) {
                                     id="max-price"
                                     type="number"
                                     placeholder="Maximum"
+                                    value={draftFilters.maxPrice}
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "maxPrice",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
@@ -53,6 +89,13 @@ function FilterPopup({ isOpen, onClose }) {
                                     id="min-size"
                                     type="number"
                                     placeholder="Minimum"
+                                    value={draftFilters.minSize}
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "minSize",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                             </div>
 
@@ -65,6 +108,13 @@ function FilterPopup({ isOpen, onClose }) {
                                     id="max-size"
                                     type="number"
                                     placeholder="Maximum"
+                                    value={draftFilters.maxSize}
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "maxSize",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
@@ -75,12 +125,40 @@ function FilterPopup({ isOpen, onClose }) {
                         <h3>Furnished</h3>
 
                         <div className="furnished-options">
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="furnished"
+                                    value=""
+                                    checked={
+                                        draftFilters.furnished === ""
+                                    }
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "furnished",
+                                            event.target.value
+                                        )
+                                    }
+                                />
+                                Any
+                            </label>
+
                             <label>
                                 <input
                                     type="radio"
                                     name="furnished"
                                     value="furnished"
-                                    defaultChecked
+                                    checked={
+                                        draftFilters.furnished ===
+                                        "furnished"
+                                    }
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "furnished",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                                 Furnished
                             </label>
@@ -89,10 +167,40 @@ function FilterPopup({ isOpen, onClose }) {
                                 <input
                                     type="radio"
                                     name="furnished"
+                                    value="appliances_only"
+                                    checked={
+                                        draftFilters.furnished ===
+                                        "appliances_only"
+                                    }
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "furnished",
+                                            event.target.value
+                                        )
+                                    }
+                                />
+                                Appliances only
+                            </label>
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="furnished"
                                     value="unfurnished"
+                                    checked={
+                                        draftFilters.furnished ===
+                                        "unfurnished"
+                                    }
+                                    onChange={(event) =>
+                                        handleChange(
+                                            "furnished",
+                                            event.target.value
+                                        )
+                                    }
                                 />
                                 Unfurnished
                             </label>
+
                         </div>
                     </div>
 
@@ -111,7 +219,7 @@ function FilterPopup({ isOpen, onClose }) {
                     <button
                         id="apply-filters"
                         type="button"
-                        onClick={onClose}
+                        onClick={handleApply}
                     >
                         Apply
                     </button>

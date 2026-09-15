@@ -1,19 +1,20 @@
-import placeholderImage from "../assets/placeholder.png";
-
-function ListingCard({ onClick }) {
+function ListingCard({ listing, onClick }) {
     return (
         <article className="listing-card" onClick={onClick}>
             <div className="listing-image">
-                <img src={placeholderImage} alt="Property listing" />
+                <img
+                    src={listing.images[0].image_url}
+                    alt={listing.title}
+                />
             </div>
 
             <div className="listing-info">
                 <div className="listing-location">
-                    Apartment For Rent In Mar Elias , Beirut مار إلياس , بيروت
+                    {listing.title}
                 </div>
 
                 <div className="listing-price">
-                    USD 1,500
+                    {listing.currency} {listing.price.toLocaleString()}
                 </div>
 
                 <div className="listing-tags">
@@ -33,31 +34,62 @@ function ListingCard({ onClick }) {
                             <path d="M6 8v9" />
                         </svg>
 
-                        <span className="bedroom-count">2</span>
+                        <span className="bedroom-count">
+                            {listing.bedrooms}
+                        </span>
                     </span>
 
-                    <span className="listing-tag">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3" />
-                            <path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
-                            <path d="M4 18v2" />
-                            <path d="M20 18v2" />
-                            <path d="M12 4v9" />
-                        </svg>
-                    </span>
+                    {listing.furnished === "Fully Furnished" && (
+                        <span className="listing-tag">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3" />
+                                <path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
+                                <path d="M4 18v2" />
+                                <path d="M20 18v2" />
+                                <path d="M12 4v9" />
+                            </svg>
+                        </span>
+                    )}
+
+                    {listing.furnished === "Appliances only" && (
+                        <span className="listing-tag">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M8 14a2 2 0 0 0-1.963 1.615l-1.018 5.193A1 1 0 0 0 6 22h12a1 1 0 0 0 .981-1.192l-1.018-5.193A2 2 0 0 0 16 14Z" />
+                                <path d="m17 2-1 12" />
+                                <path d="M8.006 14 7 2" />
+                                <path d="M7.565 8.787A5 5 0 0 0 12 8a5 5 0 0 1 4.56-.75" />
+                                <path d="M19 2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 .688 1.5" />
+                                <path d="M12 18h.01" />
+                            </svg>
+                        </span>
+                    )}
                 </div>
             </div>
 
             <div className="listing-button">
-                <div className="heart-container" title="Like">
+                <div
+                    className="heart-container"
+                    title="Like"
+                    onClick={(event) => event.stopPropagation()}
+                >
                     <input
                         type="checkbox"
                         className="checkbox"

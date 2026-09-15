@@ -11,6 +11,18 @@ import Footer from "../components/Footer";
 function Home() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+    const [filters, setFilters] = useState({
+        minPrice: "",
+        maxPrice: "",
+        minSize: "",
+        maxSize: "",
+        furnished: "",
+    });
+
+    const handleApplyFilters = (newFilters) => {
+        setFilters(newFilters);
+    };
+
     return (
         <>
             <Header />
@@ -21,6 +33,7 @@ function Home() {
 
                 <SearchSection
                     onOpenFilters={() => setIsFilterOpen(true)}
+                    filters={filters}
                 />
 
                 <SourcesSection />
@@ -31,6 +44,7 @@ function Home() {
             <FilterPopup
                 isOpen={isFilterOpen}
                 onClose={() => setIsFilterOpen(false)}
+                onApply={handleApplyFilters}
             />
         </>
     );

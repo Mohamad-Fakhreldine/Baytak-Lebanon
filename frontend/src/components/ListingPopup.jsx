@@ -1,8 +1,282 @@
-import placeholderImage from "../assets/placeholder.png";
+import { useEffect, useState } from "react";
 
-function ListingPopup({ isOpen, onClose }) {
+function ListingPopup({
+    isOpen,
+    listingId,
+    onClose
+}) {
+
+    const [listing, setListing] = useState(null);
+    const [error, setError] = useState(null);
+    const [loadedListingId, setLoadedListingId] = useState(null);
+
+
+    // ==========================
+    // FETCH SELECTED LISTING
+    // ==========================
+
+    useEffect(() => {
+
+        if (!isOpen || !listingId) {
+            return;
+        }
+
+        const controller =
+            new AbortController();
+
+        fetch(
+            `http://127.0.0.1:5000/api/listings/${listingId}`,
+            {
+                signal: controller.signal
+            }
+        )
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to fetch listing"
+                    );
+                }
+
+                return response.json();
+
+            })
+            .then(data => {
+
+                if (controller.signal.aborted) {
+                    return;
+                }
+
+                setListing(
+                    data.listing || data
+                );
+
+                setLoadedListingId(
+                    listingId
+                );
+
+                setError(
+                    null
+                );
+
+            })
+            .catch(error => {
+
+                if (error.name === "AbortError") {
+                    return;
+                }
+
+                console.error(
+                    "Failed to fetch listing:",
+                    error
+                );
+
+                setListing(
+                    null
+                );
+
+                setLoadedListingId(
+                    listingId
+                );
+
+                setError(
+                    "Unable to load this listing."
+                );
+
+            });
+
+        return () => {
+            controller.abort();
+        };
+
+    }, [isOpen, listingId]);
+
+
+    // ==========================
+    // DON'T RENDER CLOSED POPUP
+    // ==========================
+
+    if (!isOpen) {
+        return null;
+    }
+
+
+    // ==========================
+    // LOADING
+    // ==========================
+
+    const isLoading =
+        loadedListingId !== listingId;
+
+
+    if (isLoading) {
+
+        return (
+            <div className="listing-overlay active">
+
+                <div className="listing-popup">
+
+                    <button
+                        className="listing-close"
+                        onClick={onClose}
+                        aria-label="Close listing"
+                    >
+                        ×
+                    </button>
+
+                    <div className="listing-popup-content">
+
+                        <div className="listing-popup-loading">
+                            Loading listing...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // ==========================
+    // ERROR
+    // ==========================
+
+    if (error) {
+
+        return (
+            <div className="listing-overlay active">
+                
+                <div className="listing-backdrop"></div>
+
+                <div className="listing-popup">
+
+                    <button
+                        className="listing-close"
+                        onClick={onClose}
+                        aria-label="Close listing"
+                    >
+                        ×
+                    </button>
+
+                    <div className="listing-popup-content">
+
+                        <div className="listing-popup-loading">
+                            {error}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // ==========================
+    // WAIT FOR LISTING
+    // ==========================
+
+    if (!listing) {
+        return null;
+    }
+
+
+    // ==========================
+    // NULL VALUE HANDLING
+    // ==========================
+
+    const displayValue = value => {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "Unspecified";
+        }
+
+        return value;
+    };
+
+
+    // ==========================
+    // LISTING DATA
+    // ==========================
+
+    const title =
+        displayValue(listing.title);
+
+    const propertyType =
+        displayValue(listing.property_type);
+
+    const city =
+        displayValue(listing.city);
+
+    const area =
+        displayValue(listing.area);
+
+    const price =
+        displayValue(listing.price);
+
+    const currency =
+        displayValue(listing.currency);
+
+    const bedrooms =
+        displayValue(listing.bedrooms);
+
+    const bathrooms =
+        displayValue(listing.bathrooms);
+
+    const size =
+        listing.size === null ||
+        listing.size === undefined ||
+        listing.size === ""
+            ? "Unspecified"
+            : `${listing.size} m²`;
+
+    const furnished =
+        displayValue(listing.furnished);
+
+    const description =
+        displayValue(listing.description);
+
+    const sellerName =
+        displayValue(listing.seller_name);
+
+    const source =
+        displayValue(listing.source);
+
+    const listingUrl =
+        displayValue(listing.url);
+
+
+    // ==========================
+    // IMAGES
+    // ==========================
+
+    const images =
+        Array.isArray(listing.images)
+            ? listing.images.filter(
+                image =>
+                    image &&
+                    (
+                        typeof image === "string" ||
+                        image.image_url
+                    )
+            )
+            : [];
+
+
+    // ==========================
+    // RENDER
+    // ==========================
+
     return (
-        <div className={`listing-overlay ${isOpen ? "active" : ""}`}>
+        <div className="listing-overlay active">
+
             <div className="listing-popup">
 
                 <button
@@ -17,168 +291,222 @@ function ListingPopup({ isOpen, onClose }) {
 
                     <div className="listing-popup-images">
 
-                        <div
-                            id="listingCarousel"
-                            className="carousel slide"
-                            data-bs-ride="carousel"
-                            data-bs-interval="4000"
-                        >
+                        {images.length > 0 ? (
 
-                            <div className="carousel-indicators">
+                            <div
+                                id="listingCarousel"
+                                className="carousel slide"
+                                data-bs-ride="carousel"
+                                data-bs-interval="4000"
+                            >
 
-                                <button
-                                    type="button"
-                                    data-bs-target="#listingCarousel"
-                                    data-bs-slide-to="0"
-                                    className="active"
-                                    aria-current="true"
-                                    aria-label="Image 1"
-                                ></button>
+                                {images.length > 1 && (
 
-                                <button
-                                    type="button"
-                                    data-bs-target="#listingCarousel"
-                                    data-bs-slide-to="1"
-                                    aria-label="Image 2"
-                                ></button>
+                                    <div className="carousel-indicators">
 
-                                <button
-                                    type="button"
-                                    data-bs-target="#listingCarousel"
-                                    data-bs-slide-to="2"
-                                    aria-label="Image 3"
-                                ></button>
+                                        {images.map(
+                                            (image, index) => (
+
+                                                <button
+                                                    key={index}
+                                                    type="button"
+                                                    data-bs-target="#listingCarousel"
+                                                    data-bs-slide-to={index}
+                                                    className={
+                                                        index === 0
+                                                            ? "active"
+                                                            : ""
+                                                    }
+                                                    aria-current={
+                                                        index === 0
+                                                            ? "true"
+                                                            : undefined
+                                                    }
+                                                    aria-label={
+                                                        `Image ${index + 1}`
+                                                    }
+                                                ></button>
+
+                                            )
+                                        )}
+
+                                    </div>
+
+                                )}
+
+                                <div className="carousel-inner">
+
+                                    {images.map(
+                                        (image, index) => {
+
+                                            const imageUrl =
+                                                typeof image === "string"
+                                                    ? image
+                                                    : image.image_url;
+
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={
+                                                        `carousel-item ${
+                                                            index === 0
+                                                                ? "active"
+                                                                : ""
+                                                        }`
+                                                    }
+                                                >
+
+                                                    <img
+                                                        src={imageUrl}
+                                                        className="d-block w-100"
+                                                        alt={
+                                                            `${title} - Image ${index + 1}`
+                                                        }
+                                                    />
+
+                                                </div>
+                                            );
+                                        }
+                                    )}
+
+                                </div>
 
                             </div>
 
-                            <div className="carousel-inner">
+                        ) : (
 
-                                <div className="carousel-item active">
-                                    <img
-                                        src={placeholderImage}
-                                        className="d-block w-100"
-                                        alt="Property"
-                                    />
-                                </div>
-
-                                <div className="carousel-item">
-                                    <img
-                                        src={placeholderImage}
-                                        className="d-block w-100"
-                                        alt="Property"
-                                    />
-                                </div>
-
-                                <div className="carousel-item">
-                                    <img
-                                        src={placeholderImage}
-                                        className="d-block w-100"
-                                        alt="Property"
-                                    />
-                                </div>
-
+                            <div className="listing-popup-no-images">
+                                No images available
                             </div>
 
-                        </div>
+                        )}
 
                     </div>
+
 
                     <div className="listing-popup-info">
 
                         <div className="listing-popup-header">
 
                             <span className="listing-popup-property-type">
-                                Apartment
+                                {propertyType}
                             </span>
 
                             <h2>
-                                Beautiful Apartment For Rent In Mar Elias
+                                {title}
                             </h2>
 
                             <div className="listing-popup-location">
-                                Mar Elias, Beirut
+
+                                {area !== "Unspecified"
+                                    ? `${area}, ${city}`
+                                    : city}
+
                             </div>
 
                             <div className="listing-popup-price">
-                                USD 1,500
+                                {currency} {price}
                             </div>
 
                         </div>
+
 
                         <div className="listing-popup-details">
 
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     Property Type
                                 </span>
+
                                 <span className="detail-value">
-                                    Apartment
+                                    {propertyType}
                                 </span>
+
                             </div>
 
+
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     Bedrooms
                                 </span>
+
                                 <span className="detail-value">
-                                    2
+                                    {bedrooms}
                                 </span>
+
                             </div>
 
+
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     Bathrooms
                                 </span>
+
                                 <span className="detail-value">
-                                    1
+                                    {bathrooms}
                                 </span>
+
                             </div>
 
+
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     Size
                                 </span>
+
                                 <span className="detail-value">
-                                    120 m²
+                                    {size}
                                 </span>
+
                             </div>
 
+
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     Furnished
                                 </span>
+
                                 <span className="detail-value">
-                                    Furnished
+                                    {furnished}
                                 </span>
+
                             </div>
 
+
                             <div className="listing-detail">
+
                                 <span className="detail-label">
                                     City
                                 </span>
+
                                 <span className="detail-value">
-                                    Beirut
+                                    {city}
                                 </span>
+
                             </div>
 
                         </div>
 
                     </div>
 
+
                     <div className="listing-popup-description">
 
-                        <h3>Description</h3>
+                        <h3>
+                            Description
+                        </h3>
 
                         <p>
-                            Beautiful and spacious apartment available for rent
-                            in Mar Elias, Beirut. The property features two
-                            bedrooms, one bathroom, a comfortable living area,
-                            and modern furnishings. Located in a convenient
-                            area close to shops, restaurants, and public
-                            transportation.
+                            {description}
                         </p>
 
                     </div>
+
 
                     <div className="listing-popup-footer">
 
@@ -189,10 +517,11 @@ function ListingPopup({ isOpen, onClose }) {
                             </span>
 
                             <span className="detail-value">
-                                John Doe
+                                {sellerName}
                             </span>
 
                         </div>
+
 
                         <div className="listing-source">
 
@@ -201,25 +530,37 @@ function ListingPopup({ isOpen, onClose }) {
                             </span>
 
                             <span className="detail-value">
-                                OLX Lebanon
+                                {source}
                             </span>
 
                         </div>
 
-                        <a
-                            className="listing-source-button"
-                            href="https://www.olx.com.lb/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            View Listing
-                        </a>
+
+                        {listingUrl !== "Unspecified" ? (
+
+                            <a
+                                className="listing-source-button"
+                                href={listingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                View Listing
+                            </a>
+
+                        ) : (
+
+                            <span className="listing-source-button">
+                                View Listing
+                            </span>
+
+                        )}
 
                     </div>
 
                 </div>
 
             </div>
+
         </div>
     );
 }
