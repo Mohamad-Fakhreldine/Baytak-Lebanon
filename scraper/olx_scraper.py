@@ -90,7 +90,9 @@ def parse_listings(html):
 
         if external_id not in unique_listings:
 
-            unique_listings[external_id] = {
+            unique_listings[
+                external_id
+            ] = {
                 "external_id": external_id,
                 "url": url
             }
@@ -105,6 +107,8 @@ def scrape_olx():
     all_listings = []
 
     page_number = 1
+
+    scrape_complete = False
 
     with sync_playwright() as playwright:
 
@@ -148,6 +152,12 @@ def scrape_olx():
 
                     print(e)
 
+                    print(
+                        "\nOLX scrape is incomplete. "
+                        "Existing listings will not "
+                        "be deleted."
+                    )
+
                     break
 
                 actual_page = get_page_number(
@@ -164,6 +174,12 @@ def scrape_olx():
                             f"\nUnexpected page "
                             f"number returned: "
                             f"{actual_page}"
+                        )
+
+                        print(
+                            "\nOLX scrape is incomplete. "
+                            "Existing listings will not "
+                            "be deleted."
                         )
 
                         break
@@ -186,6 +202,8 @@ def scrape_olx():
                             f"{actual_page if actual_page is not None else 'the main page'}."
                         )
 
+                        scrape_complete = True
+
                         break
 
                 listings = parse_listings(
@@ -204,6 +222,8 @@ def scrape_olx():
                         "Stopping."
                     )
 
+                    scrape_complete = True
+
                     break
 
                 all_listings.extend(
@@ -218,7 +238,7 @@ def scrape_olx():
 
             browser.close()
 
-    return all_listings
+    return all_listings, scrape_complete
 
 
 def remove_duplicates(listings):
@@ -244,7 +264,7 @@ def remove_duplicates(listings):
 
 if __name__ == "__main__":
 
-    listings = scrape_olx()
+    listings, scrape_complete = scrape_olx()
 
     unique_listings = remove_duplicates(
         listings
@@ -260,6 +280,11 @@ if __name__ == "__main__":
     print(
         f"Unique listings: "
         f"{len(unique_listings)}"
+    )
+
+    print(
+        f"Scrape complete: "
+        f"{scrape_complete}"
     )
 
     print("\nUnique external IDs:")

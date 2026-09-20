@@ -5,53 +5,27 @@ from pathlib import Path
 DB_PATH = (
     Path(__file__).parent.parent
     / "database"
-    / "rental.db"
+    / "rental_temp.db"
 )
 
 
-def insert_listing(listing):
+def get_connection():
 
-    connection = sqlite3.connect(DB_PATH)
+    connection = sqlite3.connect(
+        DB_PATH
+    )
 
     connection.execute(
         "PRAGMA foreign_keys = ON"
     )
 
-    cursor = connection.cursor()
+    return connection
 
-    # ---------------------------------------------------------
-    # Check whether this listing already exists
-    # ---------------------------------------------------------
 
-    cursor.execute(
-        """
-        SELECT id
-        FROM listings
-        WHERE source = ?
-        AND external_id = ?
-        """,
-        (
-            listing["source"],
-            listing["external_id"]
-        )
-    )
-
-    existing = cursor.fetchone()
-
-    if existing:
-
-        print(
-            f"Listing {listing['external_id']} "
-            f"already exists. Skipping."
-        )
-
-        connection.close()
-
-        return False
-
-    # ---------------------------------------------------------
-    # Insert listing
-    # ---------------------------------------------------------
+def insert_listing(
+    cursor,
+    listing
+):
 
     cursor.execute(
         """
@@ -73,7 +47,10 @@ def insert_listing(listing):
             seller_name,
             scraped_date
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, datetime('now')
+        )
         """,
         (
             listing.get("title"),
@@ -96,19 +73,83 @@ def insert_listing(listing):
 
     listing_id = cursor.lastrowid
 
-    print(
-        f"Inserted listing "
-        f"{listing['external_id']}"
+    insert_images(
+        cursor,
+        listing_id,
+        listing.get("images", [])
     )
 
-    # ---------------------------------------------------------
-    # Insert images
-    # ---------------------------------------------------------
+    return listing_id
 
-    images = listing.get(
-        "images",
-        []
+
+def update_listing(
+    cursor,
+    listing,
+    listing_id
+):
+
+    cursor.execute(
+        """
+        UPDATE listings
+        SET
+            title = ?,
+            description = ?,
+            url = ?,
+            price = ?,
+            currency = ?,
+            city = ?,
+            area = ?,
+            property_type = ?,
+            bedrooms = ?,
+            bathrooms = ?,
+            size = ?,
+            furnished = ?,
+            seller_name = ?,
+            scraped_date = datetime('now')
+        WHERE id = ?
+        """,
+        (
+            listing.get("title"),
+            listing.get("description"),
+            listing.get("url"),
+            listing.get("price"),
+            listing.get("currency"),
+            listing.get("city"),
+            listing.get("area"),
+            listing.get("property_type"),
+            listing.get("bedrooms"),
+            listing.get("bathrooms"),
+            listing.get("size"),
+            listing.get("furnished"),
+            listing.get("seller_name"),
+            listing_id
+        )
     )
+
+    # Remove the old image records.
+    cursor.execute(
+        """
+        DELETE FROM images
+        WHERE listing_id = ?
+        """,
+        (
+            listing_id,
+        )
+    )
+
+    # Insert the current images.
+    insert_images(
+        cursor,
+        listing_id,
+        listing.get("images", [])
+    )
+
+
+def insert_images(
+    cursor,
+    listing_id,
+    images
+):
 
     for image_order, image_url in enumerate(
         images,
@@ -131,13 +172,81 @@ def insert_listing(listing):
             )
         )
 
-    print(
-        f"Images inserted: "
-        f"{len(images)}"
+
+def find_listing(
+    cursor,
+    source,
+    external_id
+):
+
+    cursor.execute(
+        """
+        SELECT id
+        FROM listings
+        WHERE source = ?
+        AND external_id = ?
+        """,
+        (
+            source,
+            external_id
+        )
     )
 
-    connection.commit()
+    row = cursor.fetchone()
 
-    connection.close()
+    if row:
+        return row[0]
 
-    return True
+    return None
+
+def get_listing_ids(
+    cursor,
+    source
+):
+
+    cursor.execute(
+        """
+        SELECT external_id
+        FROM listings
+        WHERE source = ?
+        """,
+        (
+            source,
+        )
+    )
+
+    return {
+        row[0]
+        for row in cursor.fetchall()
+    }
+
+
+def delete_listings(
+    cursor,
+    external_ids,
+    source
+):
+
+    if not external_ids:
+        return 0
+
+    placeholders = ",".join(
+        "?"
+        for _ in external_ids
+    )
+
+    parameters = [
+        source,
+        *external_ids
+    ]
+
+    cursor.execute(
+        f"""
+        DELETE FROM listings
+        WHERE source = ?
+        AND external_id IN ({placeholders})
+        """,
+        parameters
+    )
+
+    return cursor.rowcount
