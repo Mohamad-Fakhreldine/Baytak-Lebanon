@@ -1,0 +1,33 @@
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: baytak-backend
+    volumes:
+      - ./database:/app/database
+    expose:
+      - "5000"
+    restart: unless-stopped
+
+  automator:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: baytak-automator
+    command: python /app/automator/automator.py
+    volumes:
+      - ./database:/app/database
+    restart: unless-stopped
+    
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: baytak-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

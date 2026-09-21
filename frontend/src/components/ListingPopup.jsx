@@ -15,7 +15,7 @@ function ListingPopup({
         const controller =
             new AbortController();
         fetch(
-            `http://127.0.0.1:5000/api/listings/${listingId}`,
+            `/api/listings/${listingId}`,
             {
                 signal: controller.signal
             }

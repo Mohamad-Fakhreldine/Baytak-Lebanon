@@ -40,7 +40,7 @@ function ListingsFilters() {
     const locationRequest = useRef(null);
     useEffect(() => {
         fetch(
-            "http://127.0.0.1:5000/api/listings/property-types"
+            "/api/listings/property-types"
         )
             .then(response => {
                 if (!response.ok) {
@@ -78,7 +78,7 @@ function ListingsFilters() {
         }
         locationRequest.current = setTimeout(() => {
             fetch(
-                `http://127.0.0.1:5000/api/listings/locations?q=${encodeURIComponent(
+                `/api/listings/locations?q=${encodeURIComponent(
                     value.trim()
                 )}`
             )

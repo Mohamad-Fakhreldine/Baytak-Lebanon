@@ -38,7 +38,7 @@ function Listings() {
             currentPage
         );
         fetch(
-            `http://127.0.0.1:5000/api/listings/?${params.toString()}`
+            `/api/listings/?${params.toString()}`
         )
             .then(response => {
                 if (!response.ok) {

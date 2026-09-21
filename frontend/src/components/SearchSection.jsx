@@ -12,7 +12,7 @@ function SearchSection({ onOpenFilters, filters }) {
     const [showSuggestions, setShowSuggestions] = useState(false);
     useEffect(() => {
         fetch(
-            "http://127.0.0.1:5000/api/listings/property-types"
+            "/api/listings/property-types"
         )
             .then(response => {
                 if (!response.ok) {
@@ -61,7 +61,7 @@ function SearchSection({ onOpenFilters, filters }) {
             new AbortController();
         const timeout = setTimeout(() => {
             fetch(
-                `http://127.0.0.1:5000/api/listings/locations?q=${encodeURIComponent(
+                `/api/listings/locations?q=${encodeURIComponent(
                     location
                 )}`,
                 {

@@ -7,6 +7,13 @@ __pycache__/
 **/venv/
 **/.venv/
 
+# Database
+database/*.db
+
+# Frontend build
+frontend/dist/
+frontend/node_modules/
+
 # Environment variables
 .env
 .env.*
