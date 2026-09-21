@@ -1,184 +1,72 @@
 import re
 
-
-# ============================================================
-# Helpers
-# ============================================================
-
 def clean_text(text):
-    """
-    Normalize whitespace and common punctuation differences.
-    Keeps both English and Arabic text intact.
-    """
-
+    """Normalize whitespace and common punctuation differences."""
     if not text:
         return ""
-
     text = str(text)
-
-    # Normalize common Unicode punctuation
     text = text.replace("²", "2")
     text = text.replace("،", ",")
     text = text.replace("؛", ";")
     text = text.replace("ـ", "")
-
-    # Collapse repeated whitespace
-    text = re.sub(r"\s+", " ", text)
-
-    return text.strip().lower()
-
+    return re.sub(r"\s+", " ", text).strip().lower()
 
 def to_int(value):
-    """
-    Safely convert a matched numeric value to int.
-    """
-
+    """Safely convert a value to an integer."""
     if value is None:
         return None
-
     try:
         return int(value)
     except (ValueError, TypeError):
         return None
 
-
-# ============================================================
-# SIZE
-# ============================================================
+def find_first_match(text, patterns):
+    """Return the first regex match found across a list of patterns."""
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    return None
 
 def extract_size(text):
-    """
-    Extract property size in square meters.
-
-    Examples:
-        220 sqm
-        220 m2
-        220 m²
-        220 sq m
-        220 square meters
-        220 square metre
-        220 متر مربع
-        220 متر
-        مساحة 220
-        Total area: 210 sqm
-    """
-
+    """Extract property size in square meters."""
     patterns = [
-
-        # ----------------------------------------------------
-        # English / international formats
-        # ----------------------------------------------------
-
         r"\b(\d+(?:[.,]\d+)?)\s*"
         r"(?:sqm|sq\.?\s*m|m2|m²|square\s*meters?|square\s*metres?)\b",
-
-        # Area / size followed by number
         r"\b(?:total\s*)?"
         r"(?:area|size|surface\s*area)"
         r"\s*[:\-]?\s*"
         r"(\d+(?:[.,]\d+)?)\b",
-
-        # ----------------------------------------------------
-        # Arabic
-        # ----------------------------------------------------
-
         r"(?:مساحة|المساحة)"
         r"\s*(?:الكلية|الإجمالية)?"
         r"\s*[:\-]?\s*"
         r"(\d+(?:[.,]\d+)?)"
         r"\s*(?:متر\s*مربع|متر|م²|م2)?",
-
-        # Number followed by Arabic square-meter wording
         r"\b(\d+(?:[.,]\d+)?)\s*"
         r"(?:متر\s*مربع|متر|م²|م2)\b"
     ]
-
-    for pattern in patterns:
-
-        match = re.search(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
-
-        if match:
-
-            value = match.group(1)
-
-            value = value.replace(",", ".")
-
-            try:
-                return float(value)
-            except ValueError:
-                continue
-
-    return None
-
-
-# ============================================================
-# BEDROOMS
-# ============================================================
+    value = find_first_match(text, patterns)
+    if value is None:
+        return None
+    try:
+        return float(value.replace(",", "."))
+    except ValueError:
+        return None
 
 def extract_bedrooms(text):
-    """
-    Extract bedroom count.
-
-    Examples:
-        3 bedroom
-        3 bedrooms
-        3 bed
-        3 beds
-        3 BR
-        Bedrooms: 3
-        3 Bedrooms (1 Master)
-        3 غرف نوم
-        3 غرفة نوم
-        3 غرف
-        3 غرفة
-        غرفتين
-    """
-
+    """Extract bedroom count."""
     patterns = [
-
-        # ----------------------------------------------------
-        # English
-        # ----------------------------------------------------
-
-        r"\b(\d+)\s*"
-        r"(?:bedrooms?|beds?|br)\b",
-
+        r"\b(\d+)\s*(?:bedrooms?|beds?|br)\b",
         r"\b(?:bedrooms?|beds?|br)"
         r"\s*[:\-]?\s*(\d+)\b",
-
-        # ----------------------------------------------------
-        # Arabic
-        # ----------------------------------------------------
-
         r"\b(\d+)\s*"
         r"(?:غرف?\s+نوم|غرف\s+للنوم)\b",
-
         r"\b(\d+)\s*"
         r"(?:غرف?|غرفة)\b"
     ]
-
-    for pattern in patterns:
-
-        match = re.search(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
-
-        if match:
-
-            return to_int(
-                match.group(1)
-            )
-
-    # --------------------------------------------------------
-    # Arabic written numbers
-    # --------------------------------------------------------
-
+    value = find_first_match(text, patterns)
+    if value is not None:
+        return to_int(value)
     arabic_numbers = {
         "غرفة واحدة": 1,
         "غرفة": 1,
@@ -193,75 +81,23 @@ def extract_bedrooms(text):
         "ست غرف": 6,
         "ستة غرف": 6
     }
-
     for phrase, number in arabic_numbers.items():
-
         if phrase in text:
-
             return number
-
     return None
 
-
-# ============================================================
-# BATHROOMS
-# ============================================================
-
 def extract_bathrooms(text):
-    """
-    Extract bathroom count.
-
-    Examples:
-        4 bathroom
-        4 bathrooms
-        4 bath
-        4 baths
-        4 BA
-        Bathrooms: 4
-        4 حمام
-        4 حمامات
-        حمام واحد
-        حمامين
-    """
-
+    """Extract bathroom count."""
     patterns = [
-
-        # ----------------------------------------------------
-        # English
-        # ----------------------------------------------------
-
-        r"\b(\d+)\s*"
-        r"(?:bathrooms?|baths?|ba)\b",
-
+        r"\b(\d+)\s*(?:bathrooms?|baths?|ba)\b",
         r"\b(?:bathrooms?|baths?|ba)"
         r"\s*[:\-]?\s*(\d+)\b",
-
-        # ----------------------------------------------------
-        # Arabic
-        # ----------------------------------------------------
-
         r"\b(\d+)\s*"
         r"(?:حمام|حمامات|حمّام|حمّامات)\b"
     ]
-
-    for pattern in patterns:
-
-        match = re.search(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
-
-        if match:
-
-            return to_int(
-                match.group(1)
-            )
-
-    # --------------------------------------------------------
-    # Arabic written numbers
-    # --------------------------------------------------------
-
+    value = find_first_match(text, patterns)
+    if value is not None:
+        return to_int(value)
     arabic_numbers = {
         "حمام واحد": 1,
         "حمام": 1,
@@ -275,24 +111,14 @@ def extract_bathrooms(text):
         "ست حمامات": 6,
         "ستة حمامات": 6
     }
-
     for phrase, number in arabic_numbers.items():
-
         if phrase in text:
-
             return number
-
     return None
-
-
-# ============================================================
-# MAIN PARSER
-# ============================================================
 
 def parse_description(description):
     """
     Parse useful property information from a listing description.
-
     Returns:
         {
             "bedrooms": int | None,
@@ -300,39 +126,21 @@ def parse_description(description):
             "size": float | None
         }
     """
-
     result = {
         "bedrooms": None,
         "bathrooms": None,
         "size": None
     }
-
     if not description:
         return result
-
     text = clean_text(description)
-
     result["size"] = extract_size(text)
-
     result["bedrooms"] = extract_bedrooms(text)
-
     result["bathrooms"] = extract_bathrooms(text)
-
     return result
 
-
-# ============================================================
-# TESTS
-# ============================================================
-
 if __name__ == "__main__":
-
     test_descriptions = [
-
-        # ----------------------------------------------------
-        # English
-        # ----------------------------------------------------
-
         (
             "English standard",
             """
@@ -340,7 +148,6 @@ if __name__ == "__main__":
             Total area: 220 sqm.
             """
         ),
-
         (
             "English labels",
             """
@@ -349,14 +156,12 @@ if __name__ == "__main__":
             Size: 180 m2
             """
         ),
-
         (
             "English shorthand",
             """
             Spacious 2 BR / 2 BA apartment, 150 sq m.
             """
         ),
-
         (
             "English detailed listing",
             """
@@ -366,11 +171,6 @@ if __name__ == "__main__":
             Bathrooms: 3
             """
         ),
-
-        # ----------------------------------------------------
-        # Arabic
-        # ----------------------------------------------------
-
         (
             "Arabic standard",
             """
@@ -378,7 +178,6 @@ if __name__ == "__main__":
             مؤلفة من 3 غرف نوم و 2 حمام
             """
         ),
-
         (
             "Arabic short",
             """
@@ -386,7 +185,6 @@ if __name__ == "__main__":
             3 غرف و 2 حمامات
             """
         ),
-
         (
             "Arabic written numbers",
             """
@@ -394,11 +192,6 @@ if __name__ == "__main__":
             وحمامين ومساحة 160 متر مربع
             """
         ),
-
-        # ----------------------------------------------------
-        # Mixed Arabic / English
-        # ----------------------------------------------------
-
         (
             "Mixed language",
             """
@@ -408,11 +201,6 @@ if __name__ == "__main__":
             Size: 200 m²
             """
         ),
-
-        # ----------------------------------------------------
-        # Real OLX-style examples
-        # ----------------------------------------------------
-
         (
             "OLX Rawche example",
             """
@@ -424,7 +212,6 @@ if __name__ == "__main__":
             - Spacious Living & Dining Area
             """
         ),
-
         (
             "OLX Hamra example",
             """
@@ -437,7 +224,6 @@ if __name__ == "__main__":
             - 3 Bathrooms
             """
         ),
-
         (
             "OLX Dekwaneh example",
             """
@@ -445,12 +231,10 @@ if __name__ == "__main__":
 
             1 Salon
             1 Dining Room
-            1 Kitchen
             2 Bedrooms
             2 Bathrooms
             """
         ),
-
         (
             "OLX Arabic office example",
             """
@@ -460,31 +244,16 @@ if __name__ == "__main__":
             """
         )
     ]
-
-
     print("=" * 60)
     print("OLX DESCRIPTION PARSER TEST")
     print("=" * 60)
-
-
     passed = 0
-
-
     for name, description in test_descriptions:
-
-        result = parse_description(
-            description
-        )
-
+        result = parse_description(description)
         print("\n---")
         print(name)
         print(result)
-
         passed += 1
-
-
     print("\n" + "=" * 60)
-    print(
-        f"Tests executed: {passed}"
-    )
+    print(f"Tests executed: {passed}")
     print("=" * 60)

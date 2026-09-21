@@ -1,32 +1,13 @@
 import sqlite3
 from pathlib import Path
-
-
-DB_PATH = (
-    Path(__file__).parent.parent
-    / "database"
-    / "rental_temp.db"
-)
-
+DB_PATH = Path(__file__).parent.parent / "database" / "rental_temp.db"
 
 def get_connection():
-
-    connection = sqlite3.connect(
-        DB_PATH
-    )
-
-    connection.execute(
-        "PRAGMA foreign_keys = ON"
-    )
-
+    connection = sqlite3.connect(DB_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
-
-def insert_listing(
-    cursor,
-    listing
-):
-
+def insert_listing(cursor, listing):
     cursor.execute(
         """
         INSERT INTO listings (
@@ -67,27 +48,14 @@ def insert_listing(
             listing.get("bathrooms"),
             listing.get("size"),
             listing.get("furnished"),
-            listing.get("seller_name")
-        )
+            listing.get("seller_name"),
+        ),
     )
-
     listing_id = cursor.lastrowid
-
-    insert_images(
-        cursor,
-        listing_id,
-        listing.get("images", [])
-    )
-
+    insert_images(cursor, listing_id, listing.get("images", []))
     return listing_id
 
-
-def update_listing(
-    cursor,
-    listing,
-    listing_id
-):
-
+def update_listing(cursor, listing, listing_id):
     cursor.execute(
         """
         UPDATE listings
@@ -122,40 +90,20 @@ def update_listing(
             listing.get("size"),
             listing.get("furnished"),
             listing.get("seller_name"),
-            listing_id
-        )
+            listing_id,
+        ),
     )
-
-    # Remove the old image records.
     cursor.execute(
         """
         DELETE FROM images
         WHERE listing_id = ?
         """,
-        (
-            listing_id,
-        )
+        (listing_id,),
     )
+    insert_images(cursor, listing_id, listing.get("images", []))
 
-    # Insert the current images.
-    insert_images(
-        cursor,
-        listing_id,
-        listing.get("images", [])
-    )
-
-
-def insert_images(
-    cursor,
-    listing_id,
-    images
-):
-
-    for image_order, image_url in enumerate(
-        images,
-        start=1
-    ):
-
+def insert_images(cursor, listing_id, images):
+    for image_order, image_url in enumerate(images, start=1):
         cursor.execute(
             """
             INSERT INTO images (
@@ -168,17 +116,11 @@ def insert_images(
             (
                 listing_id,
                 image_url,
-                image_order
-            )
+                image_order,
+            ),
         )
 
-
-def find_listing(
-    cursor,
-    source,
-    external_id
-):
-
+def find_listing(cursor, source, external_id):
     cursor.execute(
         """
         SELECT id
@@ -186,67 +128,32 @@ def find_listing(
         WHERE source = ?
         AND external_id = ?
         """,
-        (
-            source,
-            external_id
-        )
+        (source, external_id),
     )
-
     row = cursor.fetchone()
+    return row[0] if row else None
 
-    if row:
-        return row[0]
-
-    return None
-
-def get_listing_ids(
-    cursor,
-    source
-):
-
+def get_listing_ids(cursor, source):
     cursor.execute(
         """
         SELECT external_id
         FROM listings
         WHERE source = ?
         """,
-        (
-            source,
-        )
+        (source,),
     )
+    return {row[0] for row in cursor.fetchall()}
 
-    return {
-        row[0]
-        for row in cursor.fetchall()
-    }
-
-
-def delete_listings(
-    cursor,
-    external_ids,
-    source
-):
-
+def delete_listings(cursor, external_ids, source):
     if not external_ids:
         return 0
-
-    placeholders = ",".join(
-        "?"
-        for _ in external_ids
-    )
-
-    parameters = [
-        source,
-        *external_ids
-    ]
-
+    placeholders = ",".join("?" for _ in external_ids)
     cursor.execute(
         f"""
         DELETE FROM listings
         WHERE source = ?
         AND external_id IN ({placeholders})
         """,
-        parameters
+        [source, *external_ids],
     )
-
     return cursor.rowcount
