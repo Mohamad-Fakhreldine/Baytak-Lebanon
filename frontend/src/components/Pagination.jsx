@@ -3,16 +3,13 @@ function Pagination({
     totalPages,
     onPageChange
 }) {
-
     const getPages = () => {
-
         if (totalPages <= 7) {
             return Array.from(
                 { length: totalPages },
                 (_, index) => index + 1
             );
         }
-
         if (currentPage <= 4) {
             return [
                 1,
@@ -24,7 +21,6 @@ function Pagination({
                 totalPages
             ];
         }
-
         if (currentPage >= totalPages - 3) {
             return [
                 1,
@@ -36,7 +32,6 @@ function Pagination({
                 totalPages
             ];
         }
-
         return [
             1,
             "...",
@@ -47,26 +42,20 @@ function Pagination({
             totalPages
         ];
     };
-
     const pages = getPages();
-
     const handleClick = (event, page) => {
         event.preventDefault();
         event.stopPropagation();
-
         if (page === currentPage) {
             return;
         }
-
         onPageChange(page);
     };
-
     return (
         <nav
             className="pagination"
             aria-label="Listings pagination"
         >
-
             <button
                 type="button"
                 className="pagination-arrow"
@@ -80,9 +69,7 @@ function Pagination({
             >
                 ←
             </button>
-
             {pages.map((page, index) => {
-
                 if (page === "...") {
                     return (
                         <span
@@ -93,7 +80,6 @@ function Pagination({
                         </span>
                     );
                 }
-
                 return (
                     <button
                         type="button"
@@ -114,7 +100,6 @@ function Pagination({
                     </button>
                 );
             })}
-
             <button
                 type="button"
                 className="pagination-arrow"
@@ -130,7 +115,6 @@ function Pagination({
             >
                 →
             </button>
-
         </nav>
     );
 }

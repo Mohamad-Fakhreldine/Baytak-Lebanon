@@ -5,53 +5,39 @@ function ListingsFilters() {
         const params = new URLSearchParams(window.location.search);
         return params.get("location") || "";
     });
-
     const [selectedLocation, setSelectedLocation] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("location") || "";
     });
-
     const [propertyType, setPropertyType] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("property_type") || "";
     });
-
     const [minPrice, setMinPrice] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("min_price") || "";
     });
-
     const [maxPrice, setMaxPrice] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("max_price") || "";
     });
-
     const [minSize, setMinSize] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("min_size") || "";
     });
-
     const [maxSize, setMaxSize] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("max_size") || "";
     });
-
     const [furnished, setFurnished] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get("furnished") || "";
     });
-
     const [suggestions, setSuggestions] = useState([]);
     const [propertyTypes, setPropertyTypes] = useState([]);
     const [propertyTypeOpen, setPropertyTypeOpen] = useState(false);
     const [furnishedOpen, setFurnishedOpen] = useState(false);
-
     const locationRequest = useRef(null);
-
-    // ==========================
-    // LOAD PROPERTY TYPES
-    // ==========================
-
     useEffect(() => {
         fetch(
             "http://127.0.0.1:5000/api/listings/property-types"
@@ -62,7 +48,6 @@ function ListingsFilters() {
                         `Failed to load property types: ${response.status}`
                     );
                 }
-
                 return response.json();
             })
             .then(data => {
@@ -77,30 +62,20 @@ function ListingsFilters() {
                     "Failed to load property types:",
                     error
                 );
-
                 setPropertyTypes([]);
             });
     }, []);
-
-    // ==========================
-    // LOCATION SUGGESTIONS
-    // ==========================
-
     const handleLocationChange = event => {
         const value = event.target.value;
-
         setLocation(value);
         setSelectedLocation("");
-
         if (locationRequest.current) {
             clearTimeout(locationRequest.current);
         }
-
         if (value.trim().length < 2) {
             setSuggestions([]);
             return;
         }
-
         locationRequest.current = setTimeout(() => {
             fetch(
                 `http://127.0.0.1:5000/api/listings/locations?q=${encodeURIComponent(
@@ -113,7 +88,6 @@ function ListingsFilters() {
                             `Failed to load location suggestions: ${response.status}`
                         );
                     }
-
                     return response.json();
                 })
                 .then(data => {
@@ -128,99 +102,72 @@ function ListingsFilters() {
                         "Failed to load location suggestions:",
                         error
                     );
-
                     setSuggestions([]);
                 });
         }, 250);
     };
-
-    // ==========================
-    // APPLY FILTERS
-    // ==========================
-
     const handleApply = () => {
         const params = new URLSearchParams();
-
         const locationValue =
             selectedLocation.trim() !== ""
                 ? selectedLocation.trim()
                 : location.trim();
-
         if (locationValue !== "") {
             params.set(
                 "location",
                 locationValue
             );
         }
-
         if (propertyType !== "") {
             params.set(
                 "property_type",
                 propertyType
             );
         }
-
         if (minPrice !== "") {
             params.set(
                 "min_price",
                 minPrice
             );
         }
-
         if (maxPrice !== "") {
             params.set(
                 "max_price",
                 maxPrice
             );
         }
-
         if (minSize !== "") {
             params.set(
                 "min_size",
                 minSize
             );
         }
-
         if (maxSize !== "") {
             params.set(
                 "max_size",
                 maxSize
             );
         }
-
         if (furnished !== "") {
             params.set(
                 "furnished",
                 furnished
             );
         }
-
         params.set(
             "page",
             "1"
         );
-
         window.location.href =
             `/listings?${params.toString()}`;
     };
-
-    // ==========================
-    // PROPERTY TYPE LABEL
-    // ==========================
-
     const selectedPropertyType =
         propertyTypes.find(
             type => type === propertyType
         );
-
     const propertyTypeLabel =
         selectedPropertyType ||
         "Any Property Type";
-
-    // ==========================
-    // FURNISHED LABEL
-    // ==========================
-
     const furnishedLabel =
         furnished === "furnished"
             ? "Furnished"
@@ -229,22 +176,13 @@ function ListingsFilters() {
                 : furnished === "unfurnished"
                     ? "Unfurnished"
                     : "Any Furnishing";
-
-    // ==========================
-    // RENDER
-    // ==========================
-
     return (
         <section className="listings-filters">
-
             <div className="filters-header-div">
                 Not quite what you had in mind?
             </div>
-
             {/* Location */}
-
             <div className="filter-field">
-
                 <input
                     id="listing-location"
                     type="text"
@@ -253,10 +191,8 @@ function ListingsFilters() {
                     onChange={handleLocationChange}
                     autoComplete="off"
                 />
-
                 {suggestions.length > 0 && (
                     <div className="location-suggestions">
-
                         {suggestions.map(
                             suggestion => (
                                 <button
@@ -267,11 +203,9 @@ function ListingsFilters() {
                                         setLocation(
                                             suggestion
                                         );
-
                                         setSelectedLocation(
                                             suggestion
                                         );
-
                                         setSuggestions([]);
                                     }}
                                 >
@@ -279,18 +213,12 @@ function ListingsFilters() {
                                 </button>
                             )
                         )}
-
                     </div>
                 )}
-
             </div>
-
             {/* Property Type */}
-
             <div className="filter-field">
-
                 <div className="custom-select">
-
                     <button
                         type="button"
                         className="custom-select-button"
@@ -301,7 +229,6 @@ function ListingsFilters() {
                         }
                     >
                         {propertyTypeLabel}
-
                         <span
                             className={`custom-select-arrow ${
                                 propertyTypeOpen
@@ -312,10 +239,8 @@ function ListingsFilters() {
                             ▾
                         </span>
                     </button>
-
                     {propertyTypeOpen && (
                         <div className="custom-select-options">
-
                             <button
                                 type="button"
                                 className={`custom-select-option ${
@@ -332,7 +257,6 @@ function ListingsFilters() {
                             >
                                 Any Property Type
                             </button>
-
                             {propertyTypes.map(
                                 type => (
                                     <button
@@ -347,7 +271,6 @@ function ListingsFilters() {
                                             setPropertyType(
                                                 type
                                             );
-
                                             setPropertyTypeOpen(
                                                 false
                                             );
@@ -357,18 +280,12 @@ function ListingsFilters() {
                                     </button>
                                 )
                             )}
-
                         </div>
                     )}
-
                 </div>
-
             </div>
-
             {/* Price */}
-
             <div className="filter-inputs">
-
                 <input
                     id="listing-min-price"
                     type="number"
@@ -380,9 +297,7 @@ function ListingsFilters() {
                         )
                     }
                 />
-
                 <span>—</span>
-
                 <input
                     id="listing-max-price"
                     type="number"
@@ -394,13 +309,9 @@ function ListingsFilters() {
                         )
                     }
                 />
-
             </div>
-
             {/* Size */}
-
             <div className="filter-inputs">
-
                 <input
                     id="listing-min-size"
                     type="number"
@@ -412,9 +323,7 @@ function ListingsFilters() {
                         )
                     }
                 />
-
                 <span>—</span>
-
                 <input
                     id="listing-max-size"
                     type="number"
@@ -426,15 +335,10 @@ function ListingsFilters() {
                         )
                     }
                 />
-
             </div>
-
             {/* Furnished */}
-
             <div className="filter-field">
-
                 <div className="custom-select">
-
                     <button
                         type="button"
                         className="custom-select-button"
@@ -445,7 +349,6 @@ function ListingsFilters() {
                         }
                     >
                         {furnishedLabel}
-
                         <span
                             className={`custom-select-arrow ${
                                 furnishedOpen
@@ -456,7 +359,6 @@ function ListingsFilters() {
                             ▾
                         </span>
                     </button>
-
                     {furnishedOpen && (
                         <div className="custom-select-options">
 
@@ -476,7 +378,6 @@ function ListingsFilters() {
                             >
                                 Any Furnishing
                             </button>
-
                             <button
                                 type="button"
                                 className={`custom-select-option ${
@@ -488,7 +389,6 @@ function ListingsFilters() {
                                     setFurnished(
                                         "furnished"
                                     );
-
                                     setFurnishedOpen(
                                         false
                                     );
@@ -496,7 +396,6 @@ function ListingsFilters() {
                             >
                                 Furnished
                             </button>
-
                             <button
                                 type="button"
                                 className={`custom-select-option ${
@@ -516,7 +415,6 @@ function ListingsFilters() {
                             >
                                 Appliances only
                             </button>
-
                             <button
                                 type="button"
                                 className={`custom-select-option ${
@@ -528,7 +426,6 @@ function ListingsFilters() {
                                     setFurnished(
                                         "unfurnished"
                                     );
-
                                     setFurnishedOpen(
                                         false
                                     );
@@ -536,18 +433,12 @@ function ListingsFilters() {
                             >
                                 Unfurnished
                             </button>
-
                         </div>
                     )}
-
                 </div>
-
             </div>
-
             {/* Apply */}
-
             <div className="filter-actions">
-
                 <button
                     type="button"
                     className="apply-filters"
@@ -555,9 +446,7 @@ function ListingsFilters() {
                 >
                     Apply
                 </button>
-
             </div>
-
         </section>
     );
 }

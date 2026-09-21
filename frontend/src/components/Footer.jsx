@@ -11,6 +11,6 @@ function Footer() {
             </address>
         </footer>
     );
-}
+} 
 
 export default Footer;

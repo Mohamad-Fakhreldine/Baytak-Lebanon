@@ -3,43 +3,26 @@
     initial-value: 0deg;
     inherits: false;
 }
-
 @keyframes spin {
     to {
         --a: 360deg;
     }
 }
-
 .listings-main {
-
     min-height: 70vh;
-
 }
-
 .header {
-
     display: flex;
-
     justify-content: center;
-
     margin-top: 3%;
-
 }
-
 .listings-grid {
-
     display: grid;
-
     grid-template-columns: repeat(2, 1fr);
-
     gap: 2vw;
-
     width: 90%;
-
     margin: 3% auto;
-
 }
-
 .listing-card {
     position: relative;
     display: flex;
@@ -52,27 +35,16 @@
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .listing-card:hover {
-
     transform: translateY(-0.5vh);
-
     box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.15);
-
 }
-
 .listing-card:hover::before {
-
     content: "";
-
     position: absolute;
-
     inset: 0;
-
     border-radius: inherit;
-
     padding: 0.2vh;
-
     background: conic-gradient(
         from var(--a),
         transparent 10deg,
@@ -80,378 +52,188 @@
         #ffffff 350deg,
         #00a878 400deg
     );
-
     animation: spin 3s linear infinite;
-
     -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
-
     -webkit-mask-composite: xor;
-
     mask-composite: exclude;
-
     pointer-events: none;
-
 }
-
 .listing-image {
-
     width: 20%;
-
     height: 100%;
-
     flex-shrink: 0;
-
     margin-right: 2.5%;
-
 }
-
 .listing-image img {
-
     width: 100%;
-
     height: 100%;
-
     object-fit: contain;
-
     display: block;
-
 }
-
 .listing-info {
-
     display: flex;
-
     flex-direction: column;
-
     justify-content: space-around;
-
     width: 70%;
-
     font-size: larger;
-
 }
-
 .listing-button {
-
     width: 10%;
-
     margin: 2% 2.5% 0 0;
-
     display: flex;
-
     flex-direction: column;
-
     justify-content: flex-start;
-
     align-items: flex-end;
-
 }
-
 .listing-price {
-
     font-weight: bold;
-
 }
-
 .heart-container {
-
     --heart-color: rgb(255, 91, 137);
-
     position: relative;
-
     width: 3vh;
-
     height: 3vh;
-
     transition: .3s;
-
 }
-
 .heart-container .checkbox {
-
     position: absolute;
-
     width: 100%;
-
     height: 100%;
-
     opacity: 0;
-
     z-index: 20;
-
     cursor: pointer;
-
 }
-
 .heart-container .svg-container {
-
     width: 100%;
-
     height: 100%;
-
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
 }
-
 .heart-container .svg-outline,
 .heart-container .svg-filled {
-
     fill: var(--heart-color);
-
     position: absolute;
-
 }
-
 .heart-container .svg-filled {
-
     animation: keyframes-svg-filled 1s;
-
     display: none;
-
 }
-
 .heart-container .svg-celebrate {
-
     position: absolute;
-
     animation: keyframes-svg-celebrate .5s;
-
     animation-fill-mode: forwards;
-
     display: none;
-
     stroke: var(--heart-color);
-
     fill: var(--heart-color);
-
     stroke-width: 2px;
-
 }
-
 .heart-container .checkbox:checked ~ .svg-container .svg-filled {
-
     display: block;
-
 }
-
 .heart-container .checkbox:checked ~ .svg-container .svg-celebrate {
-
     display: block;
-
 }
-
 @keyframes keyframes-svg-filled {
-
     0% {
-
         transform: scale(0);
-
     }
-
     25% {
-
         transform: scale(1.2);
-
     }
-
     50% {
-
         transform: scale(1);
-
         filter: brightness(1.5);
-
     }
-
 }
-
 @keyframes keyframes-svg-celebrate {
-
     0% {
-
         transform: scale(0);
-
     }
-
     50% {
-
         opacity: 1;
-
         filter: brightness(1.5);
-
     }
-
     100% {
-
         transform: scale(0.8);
-
         opacity: 0;
-
         display: none;
-
     }
-
 }
-
 .listing-tags {
-
     display: flex;
-
     gap: 3%;
-
     color: #8e0413;
-
 }
-
 .bedroom-count {
-
     margin-left: 5px;
-
     font-size: medium;
-
     font-weight: 300;
-
 }
-
 .listing-tag svg {
-
     width: 2vh;
-
     height: 2vh;
-
     flex-shrink: 0;
-
 }
-
-/* =========================
-   Listings Status
-========================= */
-
 .listings-status {
-
     width: 90%;
-
     max-width: 1400px;
-
     margin: 0 auto 30px;
-
     display: flex;
-
     align-items: center;
-
     gap: 16px;
-
 }
-
 .status-line {
-
     flex: 1;
-
     height: 1px;
-
     background: #dcdfe5;
-
 }
-
 .status-text {
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
     color: #568d66;
-
     font-size: 0.85rem;
-
     font-weight: 500;
-
     white-space: nowrap;
-
 }
-
 .status-symbol {
-
     color: #568d66;
-
     font-size: 0.9rem;
-
 }
-
 .listing-count {
-
     color: #cb0b0a;
-
     font-weight: 700;
-
 }
-
-/* =========================
-   Saved Page
-========================= */
-
 .saved-page {
-
     min-height: 100vh;
-
     display: flex;
-
     flex-direction: column;
-
 }
-
 .saved-page-empty {
-
     height: 100vh;
-
     overflow: hidden;
-
 }
-
 .saved-main {
-
     flex: 1;
-
     min-height: 0;
-
     display: flex;
-
     flex-direction: column;
-
 }
-
 .saved-main .listings-status {
-
     margin-top: 3%;
-
 }
-
 .saved-empty {
-
     flex: 1;
-
     min-height: 0;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
 }
-
 .saved-empty-image {
-
     width: 15rem;
-
     height: 15rem;
-
     object-fit: contain;
-
 }

@@ -1,104 +1,71 @@
 const SAVED_LISTINGS_KEY = "savedListings";
 
 function ListingCard({ listing, onClick, onSavedChange }) {
-
     const isSaved = () => {
-
         const savedListings = JSON.parse(
             localStorage.getItem(SAVED_LISTINGS_KEY) || "[]"
         );
-
         return savedListings.some(
             savedListing => savedListing.id === listing.id
         );
     };
-
-
     const handleFavoriteClick = (event) => {
-
         event.stopPropagation();
-
         const savedListings = JSON.parse(
             localStorage.getItem(SAVED_LISTINGS_KEY) || "[]"
         );
-
         const alreadySaved = savedListings.some(
             savedListing => savedListing.id === listing.id
         );
-
-
         if (alreadySaved) {
-
             const updatedListings = savedListings.filter(
                 savedListing => savedListing.id !== listing.id
             );
-
             localStorage.setItem(
                 SAVED_LISTINGS_KEY,
                 JSON.stringify(updatedListings)
             );
-
         } else {
-
             const updatedListings = [
                 ...savedListings,
                 listing
             ];
-
             localStorage.setItem(
                 SAVED_LISTINGS_KEY,
                 JSON.stringify(updatedListings)
             );
-
         }
-
-
         if (onSavedChange) {
             onSavedChange(
                 listing.id,
                 !alreadySaved
             );
         }
-
-
-        // Force the card to redraw so the heart changes.
         event.currentTarget
             .closest(".listing-card")
             .querySelector(".checkbox")
             .checked = !alreadySaved;
     };
-
-
     return (
         <article
             className="listing-card"
             onClick={onClick}
         >
-
             <div className="listing-image">
-
                 <img
                     src={listing.images[0].image_url}
                     alt={listing.title}
                 />
-
             </div>
-
-
             <div className="listing-info">
-
                 <div className="listing-location">
                     {listing.title}
                 </div>
-
                 <div className="listing-price">
                     {listing.currency} {listing.price.toLocaleString()}
                 </div>
-
                 <div className="listing-tags">
-
                     <span className="listing-tag">
-
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -113,18 +80,12 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                             <path d="M2 17h20" />
                             <path d="M6 8v9" />
                         </svg>
-
                         <span className="bedroom-count">
                             {listing.bedrooms}
                         </span>
-
                     </span>
-
-
                     {listing.furnished === "Fully Furnished" && (
-
                         <span className="listing-tag">
-
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -140,16 +101,10 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                                 <path d="M20 18v2" />
                                 <path d="M12 4v9" />
                             </svg>
-
                         </span>
-
                     )}
-
-
                     {listing.furnished === "Appliances only" && (
-
                         <span className="listing-tag">
-
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -168,32 +123,22 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                                 <path d="M19 2H5a2 2 0 0 1 2-2v5a2 2 0 0 0 .688 1.5" />
                                 <path d="M12 18h.01" />
                             </svg>
-
                         </span>
-
                     )}
-
                 </div>
-
             </div>
-
-
             <div className="listing-button">
-
                 <div
                     className="heart-container"
                     title="Like"
                     onClick={handleFavoriteClick}
                 >
-
                     <input
                         type="checkbox"
                         className="checkbox"
                         defaultChecked={isSaved()}
                     />
-
                     <div className="svg-container">
-
                         <svg
                             viewBox="0 0 24 24"
                             className="svg-outline"
@@ -201,7 +146,6 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                         >
                             <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z" />
                         </svg>
-
                         <svg
                             viewBox="0 0 24 24"
                             className="svg-filled"
@@ -209,7 +153,6 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                         >
                             <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Z" />
                         </svg>
-
                         <svg
                             className="svg-celebrate"
                             width="100"
@@ -223,13 +166,9 @@ function ListingCard({ listing, onClick, onSavedChange }) {
                             <polygon points="90,50 80,50" />
                             <polygon points="80,80 70,70" />
                         </svg>
-
                     </div>
-
                 </div>
-
             </div>
-
         </article>
     );
 }

@@ -1,29 +1,12 @@
-/* =========================
-   Listings Page
-========================= */
-
 .listings-main {
-
     min-height: 70vh;
-
 }
-
-
-/* =========================
-   Listings Filters
-========================= */
-
 .listings-filters {
-
     width: 90%;
     max-width: 1400px;
-
     margin: 3% auto 4%;
-
     padding: 24px 28px;
-
     display: grid;
-
     grid-template-columns:
         1.1fr
         1.1fr
@@ -31,346 +14,128 @@
         1.4fr
         1.4fr
         auto;
-
     gap: 20px;
-
     align-items: end;
-
     background: #ffffff;
-
     border: 1px solid #dcdfe5;
-
     border-radius: 14px;
-
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-
 }
-
-
-/* =========================
-   Filters Header
-========================= */
-
 .filters-header-div {
-
     grid-column: 1 / -1;
-
     font-size: 0.95rem;
-
     font-weight: 600;
-
     color: #004733;
-
     margin-bottom: -4px;
-
 }
-
-
-/* =========================
-   Individual Fields
-========================= */
-
 .filter-field,
 .filter-field-group {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 7px;
-
     min-width: 0;
-
 }
-
-
 .filter-field label,
 .filter-label {
-
     font-size: 0.85rem;
-
     font-weight: 600;
-
     color: #004733;
-
 }
-
-
-/* =========================
-   Inputs & Selects
-========================= */
-
 .filter-field input,
 .filter-field select,
 .filter-inputs input {
-
     width: 100%;
-
     height: 42px;
-
     padding: 0 12px;
-
     box-sizing: border-box;
-
     border: 1px solid #dcdfe5;
-
     border-radius: 8px;
-
     background: #f3f4f6;
-
     color: #333333;
-
     font-family: inherit;
-
     font-size: 0.9rem;
-
     outline: none;
-
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease,
         background 0.2s ease;
-
 }
-
-
 .filter-field input:focus,
 .filter-field select:focus,
 .filter-inputs input:focus {
-
     border-color: #568d66;
-
     background: #ffffff;
-
     box-shadow: 0 0 0 3px rgba(86, 141, 102, 0.12);
-
 }
-
-
 .filter-field input::placeholder,
 .filter-inputs input::placeholder {
-
     color: #8a8f98;
-
 }
-
-
-/* =========================
-   Price / Size Inputs
-========================= */
-
 .filter-inputs {
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
 }
-
-
 .filter-inputs input {
-
     min-width: 0;
-
 }
-
-
 .filter-inputs span {
-
     color: #8a8f98;
-
     font-size: 0.9rem;
-
 }
-
-
-/* =========================
-   Furnished Options
-========================= */
-
 .furnished-options {
-
     height: 42px;
-
     display: flex;
-
     align-items: center;
-
     gap: 18px;
-
 }
-
-
 .furnished-options label {
-
     display: flex;
-
     align-items: center;
-
     gap: 6px;
-
     color: #333333;
-
     font-size: 0.9rem;
-
     cursor: pointer;
-
     white-space: nowrap;
-
 }
-
-
 .furnished-options input {
-
     width: 16px;
-
     height: 16px;
-
     margin: 0;
-
     accent-color: #004733;
-
     cursor: pointer;
-
 }
-
-
-/* =========================
-   Filter Actions
-========================= */
-
 .filter-actions {
-
     display: flex;
-
     align-items: center;
-
 }
-
-
 .filter-actions button {
-
     height: 42px;
-
     padding: 0 18px;
-
     border: none;
-
     border-radius: 8px;
-
     font-family: inherit;
-
     font-size: 0.9rem;
-
     font-weight: 600;
-
     cursor: pointer;
-
     transition:
         background 0.2s ease,
         transform 0.15s ease;
-
 }
-
-
 .filter-actions button:active {
-
     transform: scale(0.97);
-
 }
-
-
-/* =========================
-   Apply Button
-========================= */
-
 .apply-filters {
-
     background: #004733;
-
     color: #ffffff;
-
 }
-
-
 .apply-filters:hover {
-
     background: #2b6a4d;
-
 }
-
-
-/* =========================
-   Responsive
-========================= */
-
-@media (max-width: 1200px) {
-
-    .listings-filters {
-
-        grid-template-columns:
-            1.1fr
-            1fr
-            1.2fr;
-
-    }
-
-    .filters-header-div {
-
-        grid-column: 1 / -1;
-
-    }
-
-    .filter-actions {
-
-        justify-content: flex-end;
-
-    }
-
-}
-
-
-@media (max-width: 700px) {
-
-    .listings-filters {
-
-        width: 88%;
-
-        padding: 20px;
-
-        grid-template-columns: 1fr;
-
-        gap: 16px;
-
-    }
-
-    .filters-header-div {
-
-        grid-column: auto;
-
-    }
-
-    .filter-actions {
-
-        width: 100%;
-
-    }
-
-    .filter-actions button {
-
-        flex: 1;
-
-    }
-
-}
-
 .custom-select {
     position: relative;
     width: 100%;
 }
-
 .custom-select-button {
     width: 100%;
     height: 42px;
@@ -383,35 +148,29 @@
     font-family: inherit;
     font-size: 0.9rem;
     cursor: pointer;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
 .custom-select-arrow {
     color: #004733;
     font-size: 0.9rem;
     transition: transform 0.2s ease;
 }
-
 .custom-select-arrow.open {
     transform: rotate(180deg);
 }
-
 .custom-select-options {
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
     width: 100%;
     z-index: 20;
-
     background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
-
 .custom-select-option {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -423,69 +182,74 @@
     text-align: left;
     cursor: pointer;
 }
-
 .custom-select-option:hover {
     background-color: var(--color-background);
 }
-
 .custom-select-option.selected {
     background-color: var(--color-accent-light);
 }
-
-
-/* =========================
-   Location Suggestions
-========================= */
-
 .filter-field {
     position: relative;
 }
-
 .location-suggestions {
     position: absolute;
-
     top: calc(100% + 6px);
     left: 0;
     width: 100%;
-
     z-index: 50;
-
     background: #ffffff;
-
     border: 1px solid #dcdfe5;
     border-radius: 8px;
-
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-
     overflow: hidden;
 }
-
 .location-suggestion {
     display: block;
-
     width: 100%;
-
     padding: 11px 12px;
-
     border: none;
-
     background: #ffffff;
-
     color: #333333;
-
     font-family: inherit;
     font-size: 0.9rem;
-
     text-align: left;
-
     cursor: pointer;
-
     transition:
         background 0.15s ease,
         color 0.15s ease;
 }
-
 .location-suggestion:hover {
     background: #f3f4f6;
     color: #004733;
+}
+@media (max-width: 1200px) {
+    .listings-filters {
+        grid-template-columns:
+            1.1fr
+            1fr
+            1.2fr;
+    }
+    .filters-header-div {
+        grid-column: 1 / -1;
+    }
+    .filter-actions {
+        justify-content: flex-end;
+    }
+}
+@media (max-width: 700px) {
+    .listings-filters {
+        width: 88%;
+        padding: 20px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .filters-header-div {
+        grid-column: auto;
+    }
+    .filter-actions {
+        width: 100%;
+    }
+    .filter-actions button {
+        flex: 1;
+    }
 }
