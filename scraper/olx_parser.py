@@ -1,5 +1,6 @@
 import re
 
+
 def clean_text(text):
     """Normalize whitespace and common punctuation differences."""
     if not text:
@@ -11,6 +12,7 @@ def clean_text(text):
     text = text.replace("ـ", "")
     return re.sub(r"\s+", " ", text).strip().lower()
 
+
 def to_int(value):
     """Safely convert a value to an integer."""
     if value is None:
@@ -20,6 +22,7 @@ def to_int(value):
     except (ValueError, TypeError):
         return None
 
+
 def find_first_match(text, patterns):
     """Return the first regex match found across a list of patterns."""
     for pattern in patterns:
@@ -27,6 +30,20 @@ def find_first_match(text, patterns):
         if match:
             return match.group(1)
     return None
+
+
+def find_written_number(text, phrases):
+    """
+    Look for written-out numbers (Arabic words).
+    Longest phrases are checked first so that a short phrase
+    does not match inside a longer one
+    (for example "حمام" inside "حمامين" or "ثلاث حمامات").
+    """
+    for phrase in sorted(phrases, key=len, reverse=True):
+        if phrase in text:
+            return phrases[phrase]
+    return None
+
 
 def extract_size(text):
     """Extract property size in square meters."""
@@ -53,12 +70,18 @@ def extract_size(text):
     except ValueError:
         return None
 
+
 def extract_bedrooms(text):
     """Extract bedroom count."""
     patterns = [
-        r"\b(\d+)\s*(?:bedrooms?|beds?|br)\b",
+        # "Bedrooms: 4"  (label with a colon or dash is the most reliable)
         r"\b(?:bedrooms?|beds?|br)"
-        r"\s*[:\-]?\s*(\d+)\b",
+        r"\s*[:\-]\s*(\d+)\b",
+        # "3 bedrooms"
+        r"\b(\d+)\s*(?:bedrooms?|beds?|br)\b",
+        # "Bedrooms 4"  (least reliable, so it is tried last)
+        r"\b(?:bedrooms?|beds?|br)"
+        r"\s*(\d+)\b",
         r"\b(\d+)\s*"
         r"(?:غرف?\s+نوم|غرف\s+للنوم)\b",
         r"\b(\d+)\s*"
@@ -81,17 +104,20 @@ def extract_bedrooms(text):
         "ست غرف": 6,
         "ستة غرف": 6
     }
-    for phrase, number in arabic_numbers.items():
-        if phrase in text:
-            return number
-    return None
+    return find_written_number(text, arabic_numbers)
+
 
 def extract_bathrooms(text):
     """Extract bathroom count."""
     patterns = [
-        r"\b(\d+)\s*(?:bathrooms?|baths?|ba)\b",
+        # "Bathrooms: 3"
         r"\b(?:bathrooms?|baths?|ba)"
-        r"\s*[:\-]?\s*(\d+)\b",
+        r"\s*[:\-]\s*(\d+)\b",
+        # "2 bathrooms"
+        r"\b(\d+)\s*(?:bathrooms?|baths?|ba)\b",
+        # "Bathrooms 3"
+        r"\b(?:bathrooms?|baths?|ba)"
+        r"\s*(\d+)\b",
         r"\b(\d+)\s*"
         r"(?:حمام|حمامات|حمّام|حمّامات)\b"
     ]
@@ -111,10 +137,8 @@ def extract_bathrooms(text):
         "ست حمامات": 6,
         "ستة حمامات": 6
     }
-    for phrase, number in arabic_numbers.items():
-        if phrase in text:
-            return number
-    return None
+    return find_written_number(text, arabic_numbers)
+
 
 def parse_description(description):
     """
@@ -139,121 +163,68 @@ def parse_description(description):
     result["bathrooms"] = extract_bathrooms(text)
     return result
 
+
 if __name__ == "__main__":
-    test_descriptions = [
-        (
-            "English standard",
-            """
-            Beautiful apartment with 3 bedrooms and 2 bathrooms.
-            Total area: 220 sqm.
-            """
-        ),
-        (
-            "English labels",
-            """
-            Bedrooms: 4
-            Bathrooms: 3
-            Size: 180 m2
-            """
-        ),
-        (
-            "English shorthand",
-            """
-            Spacious 2 BR / 2 BA apartment, 150 sq m.
-            """
-        ),
-        (
-            "English detailed listing",
-            """
-            The apartment consists of:
-            Total area: 210 sqm
-            Bedrooms: 3 (1 Master)
-            Bathrooms: 3
-            """
-        ),
-        (
-            "Arabic standard",
-            """
-            شقة بمساحة 180 متر مربع
-            مؤلفة من 3 غرف نوم و 2 حمام
-            """
-        ),
-        (
-            "Arabic short",
-            """
-            مساحة 150 متر
-            3 غرف و 2 حمامات
-            """
-        ),
-        (
-            "Arabic written numbers",
-            """
-            شقة مؤلفة من ثلاث غرف نوم
-            وحمامين ومساحة 160 متر مربع
-            """
-        ),
-        (
-            "Mixed language",
-            """
-            Apartment for rent.
-            3 Bedrooms
-            4 حمامات
-            Size: 200 m²
-            """
-        ),
-        (
-            "OLX Rawche example",
-            """
-            Property Details:
-
-            - 220 sqm
-            - 3 Bedrooms (including 1 Master Suite)
-            - 4 Bathrooms
-            - Spacious Living & Dining Area
-            """
-        ),
-        (
-            "OLX Hamra example",
-            """
-            Size : 130 m2
-
-            This Apartment consists of:
-
-            - 1 Master bedroom
-            - 1 Regular Bedroom
-            - 3 Bathrooms
-            """
-        ),
-        (
-            "OLX Dekwaneh example",
-            """
-            Size: 125 Square Meters
-
-            1 Salon
-            1 Dining Room
-            2 Bedrooms
-            2 Bathrooms
-            """
-        ),
-        (
-            "OLX Arabic office example",
-            """
-            مساحة المكتب حوالي 60 متر مربع.
-            مؤلف من 2 غرفة وصالة استقبال كبيرة.
-            و مطبخ و حمام.
-            """
-        )
+    # (name, description, expected size, expected bedrooms, expected bathrooms)
+    test_cases = [
+        ("English standard",
+         "Beautiful apartment with 3 bedrooms and 2 bathrooms.\nTotal area: 220 sqm.",
+         220.0, 3, 2),
+        ("English labels",
+         "Bedrooms: 4\nBathrooms: 3\nSize: 180 m2",
+         180.0, 4, 3),
+        ("English shorthand",
+         "Spacious 2 BR / 2 BA apartment, 150 sq m.",
+         150.0, 2, 2),
+        ("English detailed listing",
+         "The apartment consists of:\nTotal area: 210 sqm\nBedrooms: 3 (1 Master)\nBathrooms: 3",
+         210.0, 3, 3),
+        ("Arabic standard",
+         "شقة بمساحة 180 متر مربع\nمؤلفة من 3 غرف نوم و 2 حمام",
+         180.0, 3, 2),
+        ("Arabic short",
+         "مساحة 150 متر\n3 غرف و 2 حمامات",
+         150.0, 3, 2),
+        ("Arabic written numbers",
+         "شقة مؤلفة من ثلاث غرف نوم\nوحمامين ومساحة 160 متر مربع",
+         160.0, 3, 2),
+        ("Arabic written bathrooms (plural)",
+         "شقة مؤلفة من غرفتين نوم وثلاث حمامات",
+         None, 2, 3),
+        ("Mixed language",
+         "Apartment for rent.\n3 Bedrooms\n4 حمامات\nSize: 200 m²",
+         200.0, 3, 4),
+        ("OLX Rawche example",
+         "Property Details:\n- 220 sqm\n- 3 Bedrooms (including 1 Master Suite)\n- 4 Bathrooms\n- Spacious Living & Dining Area",
+         220.0, 3, 4),
+        # Known limitation: bedrooms listed one per line are not added up.
+        # The real value is 2, the parser returns 1.
+        ("OLX Hamra example (known limitation)",
+         "Size : 130 m2\nThis Apartment consists of:\n- 1 Master bedroom\n- 1 Regular Bedroom\n- 3 Bathrooms",
+         130.0, 1, 3),
+        ("OLX Dekwaneh example",
+         "Size: 125 Square Meters\n1 Salon\n1 Dining Room\n2 Bedrooms\n2 Bathrooms",
+         125.0, 2, 2),
+        # Known limitation: Arabic "N غرفة" counts any room, so this office
+        # description is read as 2 bedrooms.
+        ("OLX Arabic office example (known limitation)",
+         "مساحة المكتب حوالي 60 متر مربع.\nمؤلف من 2 غرفة وصالة استقبال كبيرة.\nو مطبخ و حمام.",
+         60.0, 2, 1),
     ]
+
     print("=" * 60)
     print("OLX DESCRIPTION PARSER TEST")
     print("=" * 60)
     passed = 0
-    for name, description in test_descriptions:
+    for name, description, size, bedrooms, bathrooms in test_cases:
         result = parse_description(description)
-        print("\n---")
-        print(name)
-        print(result)
-        passed += 1
+        expected = {"bedrooms": bedrooms, "bathrooms": bathrooms, "size": size}
+        ok = result == expected
+        passed += ok
+        print(f"\n{'PASS' if ok else 'FAIL'}  {name}")
+        if not ok:
+            print(f"  expected: {expected}")
+            print(f"  got:      {result}")
     print("\n" + "=" * 60)
-    print(f"Tests executed: {passed}")
+    print(f"{passed}/{len(test_cases)} tests passed")
     print("=" * 60)
